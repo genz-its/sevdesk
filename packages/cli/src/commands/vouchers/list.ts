@@ -3,7 +3,7 @@ import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
-import { printJson, printTable } from '../../output';
+import { contactLabel, printJson, printTable } from '../../output';
 
 export default defineCommand({
   description: 'List vouchers.',
@@ -61,6 +61,7 @@ export default defineCommand({
       contactId: options.contact,
       limit: options.limit,
       offset: options.offset,
+      embed: ['supplier'],
     });
     if (options.json) {
       printJson(vouchers);
@@ -74,7 +75,7 @@ export default defineCommand({
       vouchers.map((voucher) => ({
         id: voucher.id,
         date: voucher.voucherDate ?? '',
-        supplier: voucher.supplierName ?? voucher.supplier?.id ?? '',
+        supplier: voucher.supplierName ?? contactLabel(voucher.supplier),
         description: voucher.description ?? '',
         gross: voucher.sumGross,
         status: voucher.status ?? '',

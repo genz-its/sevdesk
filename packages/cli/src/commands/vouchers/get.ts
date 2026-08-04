@@ -3,7 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
-import { printJson } from '../../output';
+import { contactLabel, printJson } from '../../output';
 
 export default defineCommand({
   description: 'Show a single voucher.',
@@ -20,7 +20,10 @@ export default defineCommand({
       requirement: 'a voucher ID via --id',
       question: 'Enter the voucher ID:',
     });
-    const voucher = await client.vouchers.get({ voucherId });
+    const voucher = await client.vouchers.get({
+      voucherId,
+      embed: ['supplier'],
+    });
     if (options.json) {
       printJson(voucher);
       return;
@@ -29,7 +32,7 @@ export default defineCommand({
     consola.info(`Status: ${voucher.status ?? '-'}`);
     consola.info(`Date: ${voucher.voucherDate ?? '-'}`);
     consola.info(
-      `Supplier: ${voucher.supplierName ?? voucher.supplier?.id ?? '-'}`,
+      `Supplier: ${voucher.supplierName ?? contactLabel(voucher.supplier)}`,
     );
     consola.info(`Description: ${voucher.description ?? '-'}`);
     consola.info(`Net: ${voucher.sumNet}`);

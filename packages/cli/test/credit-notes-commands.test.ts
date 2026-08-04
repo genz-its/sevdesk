@@ -11,7 +11,13 @@ const creditNote = {
   id: '42',
   objectName: 'CreditNote',
   creditNoteNumber: 'GS-1',
-  contact: { id: '7', objectName: 'Contact' },
+  contact: {
+    id: '7',
+    objectName: 'Contact',
+    name: 'Acme GmbH',
+    surename: null,
+    familyname: null,
+  },
   creditNoteDate: '2024-01-15T00:00:00+01:00',
   status: '200',
   sumNet: '100.00',
@@ -89,9 +95,11 @@ describe('credit note commands', () => {
       expect(url).toContain('contact%5Bid%5D=7');
       expect(url).toContain('contact%5BobjectName%5D=Contact');
       expect(url).toContain('limit=10');
+      expect(url).toContain('embed=contact');
       const output = vi.mocked(console.log).mock.calls.flat().join('\n');
       expect(output).toContain('NUMBER');
       expect(output).toContain('GS-1');
+      expect(output).toContain('Acme GmbH');
       expect(output).toContain('119.00');
     });
 
@@ -107,7 +115,9 @@ describe('credit note commands', () => {
     it('prints the credit note as JSON', async () => {
       const fetchMock = stubFetch({ objects: [creditNote] });
       await getCommand.action({ id: 42, json: true }, undefined);
-      expect(requestAt(fetchMock, 0).url).toContain('/CreditNote/42');
+      const { url } = requestAt(fetchMock, 0);
+      expect(url).toContain('/CreditNote/42');
+      expect(url).toContain('embed=contact');
       expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual(
         creditNote,
       );

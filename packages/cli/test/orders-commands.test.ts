@@ -89,10 +89,22 @@ describe('order commands', () => {
       expect(url).toContain('contact%5Bid%5D=7');
       expect(url).toContain('contact%5BobjectName%5D=Contact');
       expect(url).toContain('limit=10');
+      expect(url).toContain('embed=contact');
       const output = vi.mocked(console.log).mock.calls.flat().join('\n');
       expect(output).toContain('NUMBER');
       expect(output).toContain('AN-1');
       expect(output).toContain('119.00');
+    });
+
+    it('falls back to the contact id when no name is embedded', async () => {
+      stubFetch({
+        objects: [
+          { ...order, contact: { id: '107003395', objectName: 'Contact' } },
+        ],
+      });
+      await listCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('107003395');
     });
 
     it('reports an empty result', async () => {
@@ -107,10 +119,31 @@ describe('order commands', () => {
     it('prints the order as JSON', async () => {
       const fetchMock = stubFetch({ objects: [order] });
       await getCommand.action({ id: 42, json: true }, undefined);
-      expect(requestAt(fetchMock, 0).url).toContain('/Order/42');
+      const { url } = requestAt(fetchMock, 0);
+      expect(url).toContain('/Order/42');
+      expect(url).toContain('embed=contact');
       expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual(
         order,
       );
+    });
+
+    it('prints the name of the embedded contact', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...order,
+            contact: {
+              id: '7',
+              objectName: 'Contact',
+              name: 'Beispiel GmbH',
+              surename: null,
+              familyname: null,
+            },
+          },
+        ],
+      });
+      await getCommand.action({ id: 42, json: false }, undefined);
+      expect(consola.info).toHaveBeenCalledWith('Contact: Beispiel GmbH');
     });
   });
 

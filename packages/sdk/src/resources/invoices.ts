@@ -335,10 +335,14 @@ export class InvoicesResource extends BaseResource {
   }
 
   /** Retrieves a single invoice via `GET /Invoice/{invoiceId}`. */
-  public async get(options: { invoiceId: number }): Promise<Invoice> {
+  public async get(options: {
+    invoiceId: number;
+    embed?: string[];
+  }): Promise<Invoice> {
     const invoices = await this.http.request<Invoice[]>({
       method: 'GET',
       path: `/Invoice/${options.invoiceId}`,
+      query: { embed: options.embed },
     });
     const invoice = invoices[0];
     if (!invoice) {

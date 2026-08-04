@@ -69,6 +69,14 @@ describe('OrdersResource.get', () => {
     expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Order/1`);
   });
 
+  it('serializes the embed fields', async () => {
+    const fetch = createMockFetch({ objects: [{ id: '1' }] });
+
+    await createResource(fetch).get({ orderId: 1, embed: ['contact'] });
+
+    expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Order/1?embed=contact`);
+  });
+
   it('throws a 404 error when the array is empty', async () => {
     const fetch = createMockFetch({ objects: [] });
 

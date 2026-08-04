@@ -1,3 +1,25 @@
+/**
+ * A contact reference as returned by the API. The name fields are only present
+ * when the reference was inflated with the `embed` query parameter.
+ */
+export interface ContactLike {
+  id: string;
+  name?: string | null;
+  surename?: string | null;
+  familyname?: string | null;
+}
+
+/** Formats a contact reference as its organization or person name. */
+export function contactLabel(ref: ContactLike | null | undefined): string {
+  if (!ref) {
+    return '-';
+  }
+  const personName = [ref.surename, ref.familyname]
+    .filter((part) => part)
+    .join(' ');
+  return ref.name || personName || ref.id || '-';
+}
+
 export function printJson(value: unknown): void {
   console.log(JSON.stringify(value, null, 2));
 }

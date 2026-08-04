@@ -201,10 +201,14 @@ export class VouchersResource extends BaseResource {
   }
 
   /** Retrieves a single voucher via `GET /Voucher/{voucherId}`. */
-  public async get(options: { voucherId: number }): Promise<Voucher> {
+  public async get(options: {
+    voucherId: number;
+    embed?: string[];
+  }): Promise<Voucher> {
     const vouchers = await this.http.request<Voucher[]>({
       method: 'GET',
       path: `/Voucher/${options.voucherId}`,
+      query: { embed: options.embed },
     });
     const voucher = vouchers[0];
     if (!voucher) {

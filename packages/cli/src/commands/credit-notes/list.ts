@@ -3,7 +3,7 @@ import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
-import { printJson, printTable } from '../../output';
+import { contactLabel, printJson, printTable } from '../../output';
 
 export default defineCommand({
   description: 'List credit notes.',
@@ -56,6 +56,7 @@ export default defineCommand({
       contactId: options.contact,
       limit: options.limit,
       offset: options.offset,
+      embed: ['contact'],
     });
     if (options.json) {
       printJson(creditNotes);
@@ -70,7 +71,7 @@ export default defineCommand({
         id: creditNote.id,
         number: creditNote.creditNoteNumber ?? '',
         date: creditNote.creditNoteDate,
-        contact: creditNote.contact?.id ?? '',
+        contact: contactLabel(creditNote.contact),
         gross: creditNote.sumGross,
         status: creditNote.status,
       })),

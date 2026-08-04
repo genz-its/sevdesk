@@ -3,7 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
-import { printJson } from '../../output';
+import { contactLabel, printJson } from '../../output';
 
 export default defineCommand({
   description: 'Show a single invoice.',
@@ -23,7 +23,10 @@ export default defineCommand({
       requirement: 'an invoice ID via --id',
       question: 'Enter the invoice ID:',
     });
-    const invoice = await client.invoices.get({ invoiceId });
+    const invoice = await client.invoices.get({
+      invoiceId,
+      embed: ['contact'],
+    });
     if (options.json) {
       printJson(invoice);
       return;
@@ -32,7 +35,7 @@ export default defineCommand({
     consola.info(`Number: ${invoice.invoiceNumber ?? '-'}`);
     consola.info(`Date: ${invoice.invoiceDate}`);
     consola.info(`Status: ${invoice.status}`);
-    consola.info(`Contact: ${invoice.contact?.id ?? '-'}`);
+    consola.info(`Contact: ${contactLabel(invoice.contact)}`);
     consola.info(`Net: ${invoice.sumNet}`);
     consola.info(`Tax: ${invoice.sumTax}`);
     consola.info(`Gross: ${invoice.sumGross}`);

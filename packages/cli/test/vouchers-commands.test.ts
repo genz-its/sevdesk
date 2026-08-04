@@ -107,10 +107,47 @@ describe('voucher commands', () => {
       expect(url).toContain('contact%5Bid%5D=7');
       expect(url).toContain('contact%5BobjectName%5D=Contact');
       expect(url).toContain('limit=10');
+      expect(url).toContain('embed=supplier');
       const output = vi.mocked(console.log).mock.calls.flat().join('\n');
       expect(output).toContain('SUPPLIER');
       expect(output).toContain('Acme GmbH');
       expect(output).toContain('119.00');
+    });
+
+    it('prints the name of the embedded supplier', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...voucher,
+            supplierName: null,
+            supplier: {
+              id: '107003395',
+              objectName: 'Contact',
+              name: 'Beispiel GmbH',
+              surename: null,
+              familyname: null,
+            },
+          },
+        ],
+      });
+      await listCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('Beispiel GmbH');
+    });
+
+    it('falls back to the supplier id when no name is embedded', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...voucher,
+            supplierName: null,
+            supplier: { id: '107003395', objectName: 'Contact' },
+          },
+        ],
+      });
+      await listCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('107003395');
     });
 
     it('reports an empty result', async () => {
@@ -125,10 +162,32 @@ describe('voucher commands', () => {
     it('prints the voucher as JSON', async () => {
       const fetchMock = stubFetch({ objects: [voucher] });
       await getCommand.action({ id: 42, json: true }, undefined);
-      expect(requestAt(fetchMock, 0).url).toContain('/Voucher/42');
+      const { url } = requestAt(fetchMock, 0);
+      expect(url).toContain('/Voucher/42');
+      expect(url).toContain('embed=supplier');
       expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual(
         voucher,
       );
+    });
+
+    it('prints the name of the embedded person supplier', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...voucher,
+            supplierName: null,
+            supplier: {
+              id: '107003395',
+              objectName: 'Contact',
+              name: null,
+              surename: 'Erika',
+              familyname: 'Musterfrau',
+            },
+          },
+        ],
+      });
+      await getCommand.action({ id: 42, json: false }, undefined);
+      expect(consola.info).toHaveBeenCalledWith('Supplier: Erika Musterfrau');
     });
 
     it('exits without an id in a non-interactive environment', async () => {

@@ -3,7 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
-import { printJson } from '../../output';
+import { contactLabel, printJson } from '../../output';
 
 export default defineCommand({
   description: 'Show a single order.',
@@ -23,7 +23,7 @@ export default defineCommand({
       requirement: 'an order ID via --id',
       question: 'Enter the order ID:',
     });
-    const order = await client.orders.get({ orderId });
+    const order = await client.orders.get({ orderId, embed: ['contact'] });
     if (options.json) {
       printJson(order);
       return;
@@ -32,7 +32,7 @@ export default defineCommand({
     consola.info(`Number: ${order.orderNumber}`);
     consola.info(`Date: ${order.orderDate}`);
     consola.info(`Status: ${order.status}`);
-    consola.info(`Contact: ${order.contact?.id ?? '-'}`);
+    consola.info(`Contact: ${contactLabel(order.contact)}`);
     consola.info(`Net: ${order.sumNet}`);
     consola.info(`Tax: ${order.sumTax}`);
     consola.info(`Gross: ${order.sumGross}`);

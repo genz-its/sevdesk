@@ -3,7 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
-import { printJson } from '../../output';
+import { contactLabel, printJson } from '../../output';
 
 export default defineCommand({
   description: 'Show a single credit note.',
@@ -23,7 +23,10 @@ export default defineCommand({
       requirement: 'a credit note ID via --id',
       question: 'Enter the credit note ID:',
     });
-    const creditNote = await client.creditNotes.get({ creditNoteId });
+    const creditNote = await client.creditNotes.get({
+      creditNoteId,
+      embed: ['contact'],
+    });
     if (options.json) {
       printJson(creditNote);
       return;
@@ -32,7 +35,7 @@ export default defineCommand({
     consola.info(`Number: ${creditNote.creditNoteNumber ?? '-'}`);
     consola.info(`Date: ${creditNote.creditNoteDate}`);
     consola.info(`Status: ${creditNote.status}`);
-    consola.info(`Contact: ${creditNote.contact?.id ?? '-'}`);
+    consola.info(`Contact: ${contactLabel(creditNote.contact)}`);
     consola.info(`Net: ${creditNote.sumNet}`);
     consola.info(`Tax: ${creditNote.sumTax}`);
     consola.info(`Gross: ${creditNote.sumGross}`);

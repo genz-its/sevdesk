@@ -69,6 +69,19 @@ describe('VouchersResource.get', () => {
     expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Voucher/1`);
   });
 
+  it('serializes the embed fields', async () => {
+    const fetch = createMockFetch({ objects: [{ id: '1' }] });
+
+    await createResource(fetch).get({
+      voucherId: 1,
+      embed: ['supplier', 'costCentre'],
+    });
+
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/Voucher/1?embed=supplier%2CcostCentre`,
+    );
+  });
+
   it('throws a 404 error when the array is empty', async () => {
     const fetch = createMockFetch({ objects: [] });
 

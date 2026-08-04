@@ -307,10 +307,14 @@ export class CreditNotesResource extends BaseResource {
   }
 
   /** Retrieves a single credit note via `GET /CreditNote/{creditNoteId}`. */
-  public async get(options: { creditNoteId: number }): Promise<CreditNote> {
+  public async get(options: {
+    creditNoteId: number;
+    embed?: string[];
+  }): Promise<CreditNote> {
     const creditNotes = await this.http.request<CreditNote[]>({
       method: 'GET',
       path: `/CreditNote/${options.creditNoteId}`,
+      query: { embed: options.embed },
     });
     const creditNote = creditNotes[0];
     if (!creditNote) {

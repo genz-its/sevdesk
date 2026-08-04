@@ -3,7 +3,7 @@ import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
-import { printJson, printTable } from '../../output';
+import { contactLabel, printJson, printTable } from '../../output';
 
 export default defineCommand({
   description: 'List orders.',
@@ -53,6 +53,7 @@ export default defineCommand({
       contactId: options.contact,
       limit: options.limit,
       offset: options.offset,
+      embed: ['contact'],
     });
     if (options.json) {
       printJson(orders);
@@ -67,7 +68,7 @@ export default defineCommand({
         id: order.id,
         number: order.orderNumber,
         date: order.orderDate,
-        contact: order.contact?.id ?? '',
+        contact: contactLabel(order.contact),
         gross: order.sumGross,
         status: order.status,
       })),

@@ -316,10 +316,14 @@ export class OrdersResource extends BaseResource {
   }
 
   /** Retrieves a single order via `GET /Order/{orderId}`. */
-  public async get(options: { orderId: number }): Promise<Order> {
+  public async get(options: {
+    orderId: number;
+    embed?: string[];
+  }): Promise<Order> {
     const orders = await this.http.request<Order[]>({
       method: 'GET',
       path: `/Order/${options.orderId}`,
+      query: { embed: options.embed },
     });
     const order = orders[0];
     if (!order) {
