@@ -26,6 +26,6 @@ curl -fsSL https://api.sevdesk.de/openapi.yaml -o openapi.yaml
 
 ## License
 
-[MIT](./LICENSE)
+See [LICENSE](./LICENSE).
 
 [^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevDesk GmbH or any of their affiliates or subsidiaries.
