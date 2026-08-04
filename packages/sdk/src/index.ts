@@ -9,7 +9,15 @@ export type {
 } from './http-client';
 export * from './resources/basics';
 export * from './resources/check-accounts';
+export * from './resources/contacts';
+export * from './resources/credit-notes';
+export * from './resources/exports';
+export * from './resources/invoices';
+export * from './resources/orders';
+export * from './resources/parts';
 export * from './resources/receipt-guidance';
+export * from './resources/reports';
+export * from './resources/tags';
 export * from './resources/transactions';
 export * from './resources/vouchers';
 export type {
