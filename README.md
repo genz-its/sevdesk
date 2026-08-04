@@ -27,6 +27,10 @@ sevdesk login
 
 See the [SDK documentation](./packages/sdk/README.md) and the [CLI documentation](./packages/cli/README.md) for usage details and the full command reference.
 
+## Guides
+
+- [Automation Guide](./docs/automation-guide.md) — Build an automated voucher workflow on top of the CLI.
+
 ## Development
 
 ```bash
