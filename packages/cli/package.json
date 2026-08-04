@@ -16,7 +16,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@genz-its/sevdesk-sdk": "0.0.0"
+    "@genz-its/sevdesk-sdk": "0.0.0",
+    "@robingenz/zli": "0.2.0",
+    "consola": "3.4.2",
+    "zod": "4.4.3"
   },
   "homepage": "https://github.com/genz-its/sevdesk",
   "repository": {
