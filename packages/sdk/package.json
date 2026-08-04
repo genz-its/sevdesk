@@ -1,0 +1,48 @@
+{
+  "name": "@genz-its/sevdesk-sdk",
+  "version": "0.0.0",
+  "description": "Unofficial Node.js SDK for the sevdesk API.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "homepage": "https://github.com/genz-its/sevdesk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genz-its/sevdesk.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/genz-its/sevdesk/issues"
+  },
+  "keywords": [
+    "sevdesk",
+    "api",
+    "sdk",
+    "accounting",
+    "bookkeeping"
+  ],
+  "author": "Robin Genz <mail@genz-its.de>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

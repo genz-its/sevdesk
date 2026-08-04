@@ -1,0 +1,45 @@
+{
+  "name": "@genz-its/sevdesk-cli",
+  "version": "0.0.0",
+  "description": "Unofficial command-line interface for the sevdesk API.",
+  "type": "module",
+  "bin": {
+    "sevdesk": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@genz-its/sevdesk-sdk": "0.0.0"
+  },
+  "homepage": "https://github.com/genz-its/sevdesk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genz-its/sevdesk.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/genz-its/sevdesk/issues"
+  },
+  "keywords": [
+    "sevdesk",
+    "api",
+    "cli",
+    "accounting",
+    "bookkeeping"
+  ],
+  "author": "Robin Genz <mail@genz-its.de>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
