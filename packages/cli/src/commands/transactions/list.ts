@@ -15,7 +15,9 @@ export default defineCommand({
       unbooked: z
         .boolean()
         .default(false)
-        .describe('Only show transactions that are not yet booked.'),
+        .describe(
+          'Only show transactions with status 100 (created). Filtered client-side because the sevdesk API ignores its isBooked=false filter, so a page fetched with --limit may yield fewer rows.',
+        ),
       startDate: z
         .string()
         .optional()
@@ -45,9 +47,8 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const transactions = await client.transactions.list({
+    let transactions = await client.transactions.list({
       checkAccountId: options.checkAccount,
-      isBooked: options.unbooked ? false : undefined,
       startDate: options.startDate,
       endDate: options.endDate,
       payeePayerName: options.payee,
@@ -55,6 +56,11 @@ export default defineCommand({
       limit: options.limit,
       offset: options.offset,
     });
+    if (options.unbooked) {
+      transactions = transactions.filter(
+        (transaction) => transaction.status === '100',
+      );
+    }
     if (options.json) {
       printJson(transactions);
       return;

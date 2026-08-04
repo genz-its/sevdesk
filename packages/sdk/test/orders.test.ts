@@ -285,7 +285,7 @@ describe('OrdersResource sub resources', () => {
 
     expect(lastRequest(fetch).url).toBe(
       `${BASE_URL}/Order/1/getRelatedObjects` +
-        '?includeItself=true&sortByType=false&embed=contact',
+        '?includeItself=1&sortByType=0&embed=contact',
     );
   });
 });
@@ -357,7 +357,7 @@ describe('OrdersResource.getPdf', () => {
     });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Order/1/getPdf?preventSendBy=true`,
+      `${BASE_URL}/Order/1/getPdf?preventSendBy=1`,
     );
     expect(pdf.content).toBe('JVBER');
   });

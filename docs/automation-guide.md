@@ -71,4 +71,5 @@ sevdesk vouchers:book \
 ## 7. Historical analysis
 
 - Reuse past decisions instead of guessing: `sevdesk vouchers:positions --voucher <voucherId> --json` shows which **booking account and tax rate** a supplier's earlier vouchers used. Look up the supplier's vouchers with `sevdesk vouchers:list --contact <contactId> --json` first.
+- Positions of vouchers created before the account's sevdesk-Update 2.0 migration carry a legacy `accountingType` instead of `accountDatev` and no tax rule — this is inherent to the bookkeeping-system migration, so resolve their booking accounts via the legacy ID or skip pre-2.0 vouchers in the analysis.
 - The API does **not** expose the link between a booked voucher and its bank transaction. Use `sevdesk transactions:list --unbooked` to see what is still open, and infer historical voucher-transaction mappings via amount, date, and supplier.

@@ -47,7 +47,7 @@ describe('ReportsResource.invoiceList', () => {
     });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Report/invoicelist?download=true&view=open` +
+      `${BASE_URL}/Report/invoicelist?download=1&view=open` +
         '&sevQuery%5BobjectName%5D=SevQuery&sevQuery%5BmodelName%5D=Invoice' +
         '&sevQuery%5Blimit%5D=1000' +
         '&sevQuery%5Bfilter%5D%5BstartDate%5D=2024-01-01T00%3A00%3A00.000Z' +
@@ -88,13 +88,13 @@ describe('ReportsResource.contactList', () => {
     });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Report/contactlist?download=false` +
+      `${BASE_URL}/Report/contactlist?download=0` +
         '&sevQuery%5BobjectName%5D=SevQuery&sevQuery%5BmodelName%5D=Contact' +
         '&sevQuery%5Blimit%5D=100' +
         '&sevQuery%5Bfilter%5D%5Bcity%5D=Offenburg' +
         '&sevQuery%5Bfilter%5D%5Bcountry%5D%5Bid%5D=1' +
         '&sevQuery%5Bfilter%5D%5Bcountry%5D%5BobjectName%5D=StaticCountry' +
-        '&sevQuery%5Bfilter%5D%5BonlyPeople%5D=true',
+        '&sevQuery%5Bfilter%5D%5BonlyPeople%5D=1',
     );
   });
 });

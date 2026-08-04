@@ -47,8 +47,11 @@ describe('transaction commands', () => {
     vi.restoreAllMocks();
   });
 
-  it('filters unbooked transactions of a check account', async () => {
-    respondWith([transaction]);
+  it('filters unbooked transactions of a check account client-side', async () => {
+    respondWith([
+      transaction,
+      { ...transaction, id: '2', payeePayerName: 'BOOKED CORP', status: '400' },
+    ]);
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     await list.action(
@@ -69,20 +72,24 @@ describe('transaction commands', () => {
     expect(url.searchParams.get('checkAccount[objectName]')).toBe(
       'CheckAccount',
     );
-    expect(url.searchParams.get('isBooked')).toBe('false');
+    expect(url.searchParams.has('isBooked')).toBe(false);
     expect(url.searchParams.get('payeePayerName')).toBe('ACME');
     expect(url.searchParams.get('limit')).toBe('10');
-    expect(log.mock.calls.flat().join('\n')).toContain('ACME');
+    const output = log.mock.calls.flat().join('\n');
+    expect(output).toContain('ACME');
+    expect(output).not.toContain('BOOKED CORP');
   });
 
-  it('omits the booking filter when unbooked is not set', async () => {
-    respondWith([]);
-    const info = vi.spyOn(consola, 'info').mockImplementation(() => {});
+  it('keeps booked transactions when unbooked is not set', async () => {
+    respondWith([
+      { ...transaction, id: '2', payeePayerName: 'BOOKED CORP', status: '400' },
+    ]);
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     await list.action({ unbooked: false, json: false }, undefined);
 
     expect(lastRequest().url.searchParams.has('isBooked')).toBe(false);
-    expect(info).toHaveBeenCalledWith('No transactions found.');
+    expect(log.mock.calls.flat().join('\n')).toContain('BOOKED CORP');
   });
 
   it('prints a single transaction as JSON', async () => {

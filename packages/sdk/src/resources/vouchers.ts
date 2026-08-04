@@ -141,7 +141,10 @@ export interface VoucherPosition {
   update: string;
   sevClient: ModelRefResponse;
   voucher: ModelRefResponse;
-  accountDatev: ModelRefResponse;
+  /** `null` for legacy bookkeeping-1.0 positions, which carry `accountingType` instead. */
+  accountDatev: ModelRefResponse | null;
+  /** Booking account of legacy bookkeeping-1.0 positions. `null` for 2.0 positions. */
+  accountingType: ModelRefResponse | null;
   taxRate: string;
   net: boolean;
   isAsset: boolean;

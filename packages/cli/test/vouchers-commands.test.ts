@@ -217,6 +217,23 @@ describe('voucher commands', () => {
       expect(output).toContain('3300 Wareneingang');
     });
 
+    it('renders legacy positions without an accountDatev', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...position,
+            accountDatev: null,
+            accountingType: { id: '74', objectName: 'AccountingType' },
+          },
+          { ...position, id: '2', accountDatev: null, accountingType: null },
+        ],
+      });
+      await positionsCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('74');
+      expect(output).toContain('-');
+    });
+
     it('prints the positions as JSON', async () => {
       stubFetch({ objects: [position] });
       await positionsCommand.action({ json: true }, undefined);

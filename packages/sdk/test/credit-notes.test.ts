@@ -333,7 +333,7 @@ describe('CreditNotesResource.getPdf', () => {
     });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/CreditNote/1/getPdf?preventSendBy=true`,
+      `${BASE_URL}/CreditNote/1/getPdf?preventSendBy=1`,
     );
     expect(pdf.content).toBe('JVBER');
   });

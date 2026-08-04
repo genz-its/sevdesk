@@ -57,8 +57,8 @@ describe('ExportsResource.createDatevCsvZipExportJob', () => {
     expect(url).toBe(
       `${BASE_URL}/Export/createDatevCsvZipExportJob` +
         '?startDate=1641038867&endDate=1648805267&scope=EXTCD' +
-        '&exportByPaydate=true&includeEnshrined=false' +
-        '&enshrineDocuments=true&includeDocumentImages=true',
+        '&exportByPaydate=1&includeEnshrined=0' +
+        '&enshrineDocuments=1&includeDocumentImages=1',
     );
     expect(init.method).toBe('GET');
     expect(result).toBe('0a0e1eff-9590-1bea-1195-a3cfc04364cc');
@@ -97,8 +97,8 @@ describe('ExportsResource.createDatevXmlZipExportJob', () => {
     expect(lastRequest(fetch).url).toBe(
       `${BASE_URL}/Export/createDatevXmlZipExportJob` +
         '?startDate=1641032867&endDate=1648805267&scope=EX' +
-        '&exportByPaydate=false&includeEnshrined=true' +
-        '&includeExportedDocuments=false&includeDocumentXml=true',
+        '&exportByPaydate=0&includeEnshrined=1' +
+        '&includeExportedDocuments=0&includeDocumentXml=1',
     );
   });
 });
@@ -188,7 +188,7 @@ describe('ExportsResource.exportInvoicesCsv', () => {
     });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Export/invoiceCsv?download=true` +
+      `${BASE_URL}/Export/invoiceCsv?download=1` +
         '&sevQuery%5BobjectName%5D=SevQuery&sevQuery%5BmodelName%5D=Invoice' +
         '&sevQuery%5Blimit%5D=1000' +
         '&sevQuery%5Bfilter%5D%5BstartDate%5D=2024-01-01T00%3A00%3A00.000Z' +
@@ -261,7 +261,7 @@ describe('ExportsResource.exportVouchersZip', () => {
     await createResource(fetch).exportVouchersZip({ download: false });
 
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Export/voucherZip?download=false` +
+      `${BASE_URL}/Export/voucherZip?download=0` +
         '&sevQuery%5BobjectName%5D=SevQuery&sevQuery%5BmodelName%5D=Voucher',
     );
   });
@@ -318,8 +318,8 @@ describe('ExportsResource.exportContactsCsv', () => {
         '&sevQuery%5Bfilter%5D%5Bcity%5D=Offenburg' +
         '&sevQuery%5Bfilter%5D%5Bcountry%5D%5Bid%5D=1' +
         '&sevQuery%5Bfilter%5D%5Bcountry%5D%5BobjectName%5D=StaticCountry' +
-        '&sevQuery%5Bfilter%5D%5Bdepth%5D=false' +
-        '&sevQuery%5Bfilter%5D%5BonlyPeople%5D=true',
+        '&sevQuery%5Bfilter%5D%5Bdepth%5D=0' +
+        '&sevQuery%5Bfilter%5D%5BonlyPeople%5D=1',
     );
   });
 });

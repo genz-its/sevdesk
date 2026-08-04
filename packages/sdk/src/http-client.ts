@@ -100,10 +100,7 @@ export class HttpClient {
       if (value === undefined) {
         continue;
       }
-      url.searchParams.append(
-        key,
-        Array.isArray(value) ? value.join(',') : String(value),
-      );
+      url.searchParams.append(key, serializeQueryValue(value));
     }
     return url.toString();
   }
@@ -128,6 +125,20 @@ export class HttpClient {
       signal: AbortSignal.timeout(this.timeout),
     };
   }
+}
+
+/**
+ * Booleans are serialized as `1`/`0` because the sevdesk API ignores the
+ * literal string `false` in query parameters.
+ */
+function serializeQueryValue(value: Exclude<QueryValue, undefined>): string {
+  if (Array.isArray(value)) {
+    return value.join(',');
+  }
+  if (typeof value === 'boolean') {
+    return value ? '1' : '0';
+  }
+  return String(value);
 }
 
 function unwrap(payload: unknown): unknown {

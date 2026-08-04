@@ -719,7 +719,7 @@ sevdesk transactions:list [options]
 **Options:**
 
 - `--check-account`: Only show transactions of this check account ID.
-- `--unbooked`: Only show transactions that are not yet booked. Defaults to `false`.
+- `--unbooked`: Only show transactions with status `100` (created). Filtered client-side because the sevdesk API ignores its `isBooked=false` filter, so a page fetched with `--limit` may yield fewer rows. Defaults to `false`.
 - `--start-date`: Only show transactions on or after this date (ISO 8601).
 - `--end-date`: Only show transactions on or before this date (ISO 8601).
 - `--payee`: Only show transactions with this payee or payer name.

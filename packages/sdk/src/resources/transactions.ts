@@ -40,6 +40,10 @@ export interface CheckAccountTransaction {
 
 export interface ListTransactionsOptions extends ListOptions {
   checkAccountId?: number;
+  /**
+   * Documented by sevdesk, but the API is known to ignore `false` — filter
+   * client-side on `status` to find unbooked transactions.
+   */
   isBooked?: boolean;
   paymtPurpose?: string;
   startDate?: DateInput;

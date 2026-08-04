@@ -168,7 +168,7 @@ describe('order commands', () => {
       const { url, init } = requestAt(fetchMock, 0);
       expect(init.method).toBe('GET');
       expect(url).toContain('/Order/42/getPdf');
-      expect(url).toContain('preventSendBy=true');
+      expect(url).toContain('preventSendBy=1');
       expect(await readFile(path)).toEqual(pdfContent);
       expect(consola.success).toHaveBeenCalledWith(`Saved ${path}.`);
     });

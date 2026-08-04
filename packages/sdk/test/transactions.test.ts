@@ -54,13 +54,13 @@ describe('TransactionsResource', () => {
 
       const query = new URL(lastRequest(fetch).url).searchParams;
       expect(Object.fromEntries(query)).toEqual({
-        isBooked: 'true',
+        isBooked: '1',
         paymtPurpose: 'salary',
         startDate: '2024-05-01T00:00:00.000Z',
         endDate: '2024-05-31T23:59:59+02:00',
         payeePayerName: 'Cercei Lannister',
-        onlyCredit: 'false',
-        onlyDebit: 'true',
+        onlyCredit: '0',
+        onlyDebit: '1',
         limit: '50',
         offset: '100',
       });

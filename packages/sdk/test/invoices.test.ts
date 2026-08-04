@@ -397,7 +397,7 @@ describe('InvoicesResource.getPdf', () => {
 
     expect(pdf.filename).toBe('RE-1000.pdf');
     expect(lastRequest(fetch).url).toBe(
-      `${BASE_URL}/Invoice/1/getPdf?preventSendBy=true`,
+      `${BASE_URL}/Invoice/1/getPdf?preventSendBy=1`,
     );
   });
 

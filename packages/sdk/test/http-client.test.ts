@@ -113,7 +113,7 @@ describe('HttpClient', () => {
       const query = new URL(lastRequest(fetch).url).searchParams;
       expect(Object.fromEntries(query)).toEqual({
         embed: 'contact,checkAccount',
-        isBooked: 'false',
+        isBooked: '0',
         limit: '25',
         name: 'Iron Bank',
       });

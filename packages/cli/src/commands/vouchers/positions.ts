@@ -55,7 +55,7 @@ export default defineCommand({
       positions.map((position) => ({
         id: position.id,
         voucher: position.voucher.id,
-        account: accountLabel(position.accountDatev),
+        account: accountLabel(position.accountDatev ?? position.accountingType),
         taxRate: position.taxRate,
         net: String(position.net),
         sumNet: position.sumNet,
@@ -65,7 +65,10 @@ export default defineCommand({
   },
 });
 
-function accountLabel(account: AccountDatevLike): string {
+function accountLabel(account: AccountDatevLike | null | undefined): string {
+  if (!account) {
+    return '-';
+  }
   const parts = [
     account.number ?? account.accountNumber,
     account.name ?? account.accountName,
