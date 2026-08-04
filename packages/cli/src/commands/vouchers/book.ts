@@ -21,7 +21,9 @@ export default defineCommand({
       type: z
         .enum(['FULL_PAYMENT', 'N', 'CB', 'O', 'OF', 'MTC'])
         .default('FULL_PAYMENT')
-        .describe('Type of the booking.'),
+        .describe(
+          'Type of the booking. Supported values are FULL_PAYMENT, N (partial), CB (cash discount), O (other), OF (reminder charges) and MTC (monetary traffic costs).',
+        ),
       checkAccount: z.coerce
         .number()
         .optional()

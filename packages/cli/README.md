@@ -8,6 +8,8 @@ Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1
 - 💳 **Transactions**: List and filter bank transactions, for example the ones that are not booked yet.
 - 🏦 **Check accounts**: List accounts, query balances, and create clearing or file import accounts.
 - 🧭 **Receipt guidance**: Find bookable accounts and their allowed tax rules.
+- 📄 **Documents**: List invoices, credit notes and orders, and download them as PDF.
+- 📤 **Exports**: Export accounting data in the DATEV format, or contacts, invoices, transactions and vouchers as CSV.
 - 🤖 **Automation-friendly**: `--json` output on every command, non-interactive mode, and stable exit codes.
 
 ## Requirements
@@ -86,7 +88,31 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`accounts:create-file-import`](#accountscreate-file-import)
 - [`accounts:get`](#accountsget)
 - [`accounts:list`](#accountslist)
+- [`contacts:create`](#contactscreate)
+- [`contacts:delete`](#contactsdelete)
+- [`contacts:get`](#contactsget)
+- [`contacts:list`](#contactslist)
+- [`contacts:update`](#contactsupdate)
+- [`credit-notes:get`](#credit-notesget)
+- [`credit-notes:list`](#credit-noteslist)
+- [`credit-notes:pdf`](#credit-notespdf)
+- [`export:contacts`](#exportcontacts)
+- [`export:datev`](#exportdatev)
+- [`export:invoices`](#exportinvoices)
+- [`export:transactions`](#exporttransactions)
+- [`export:vouchers`](#exportvouchers)
 - [`guidance:accounts`](#guidanceaccounts)
+- [`invoices:get`](#invoicesget)
+- [`invoices:list`](#invoiceslist)
+- [`invoices:pdf`](#invoicespdf)
+- [`orders:get`](#ordersget)
+- [`orders:list`](#orderslist)
+- [`orders:pdf`](#orderspdf)
+- [`parts:get`](#partsget)
+- [`parts:list`](#partslist)
+- [`tags:create`](#tagscreate)
+- [`tags:delete`](#tagsdelete)
+- [`tags:list`](#tagslist)
 - [`transactions:create`](#transactionscreate)
 - [`transactions:get`](#transactionsget)
 - [`transactions:list`](#transactionslist)
@@ -201,6 +227,217 @@ sevdesk accounts:list [options]
 - `--offset`: The number of check accounts to skip.
 - `--json`: Output in JSON format.
 
+### `contacts:create`
+
+Create a contact. Use `--name` for organizations and `--surename` together with `--familyname` for persons.
+
+```bash
+sevdesk contacts:create [options]
+```
+
+**Options:**
+
+- `--name`: Name of the organization. Not to be used for persons. If both `--name` and `--familyname` are omitted, you will be prompted for the organization name.
+- `--surename`: First name of the person. Not to be used for organizations.
+- `--familyname`: Last name of the person. Not to be used for organizations.
+- `--category`: ID of the contact category: `2` supplier, `3` customer, `4` partner. Defaults to `3`.
+- `--customer-number`: Customer number of the contact.
+- `--description`: Description of the contact.
+- `--vat-number`: VAT number of the contact.
+- `--tax-number`: Tax number of the contact.
+- `--json`: Output in JSON format.
+
+### `contacts:delete`
+
+Delete a contact.
+
+```bash
+sevdesk contacts:delete [options]
+```
+
+**Options:**
+
+- `--id`: The contact ID. If omitted, you will be prompted.
+- `--yes`: Skip the confirmation prompt. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `contacts:get`
+
+Show a single contact.
+
+```bash
+sevdesk contacts:get [options]
+```
+
+**Options:**
+
+- `--id`: The contact ID. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `contacts:list`
+
+List contacts.
+
+```bash
+sevdesk contacts:list [options]
+```
+
+**Options:**
+
+- `--name`: Filter by organization, first or last name.
+- `--customer-number`: Filter by customer number.
+- `--limit`: Maximum number of contacts to return.
+- `--offset`: Number of contacts to skip.
+- `--json`: Output in JSON format.
+
+### `contacts:update`
+
+Update a contact. Only the given fields are changed.
+
+```bash
+sevdesk contacts:update [options]
+```
+
+**Options:**
+
+- `--id`: The contact ID. If omitted, you will be prompted.
+- `--name`: Name of the organization. Not to be used for persons.
+- `--surename`: First name of the person. Not to be used for organizations.
+- `--familyname`: Last name of the person. Not to be used for organizations.
+- `--category`: ID of the contact category: `2` supplier, `3` customer, `4` partner.
+- `--customer-number`: Customer number of the contact.
+- `--description`: Description of the contact.
+- `--vat-number`: VAT number of the contact.
+- `--tax-number`: Tax number of the contact.
+- `--json`: Output in JSON format.
+
+### `credit-notes:get`
+
+Show a single credit note.
+
+```bash
+sevdesk credit-notes:get [options]
+```
+
+**Options:**
+
+- `--id`: ID of the credit note. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `credit-notes:list`
+
+List credit notes.
+
+```bash
+sevdesk credit-notes:list [options]
+```
+
+**Options:**
+
+- `--status`: Filter by status: `100` draft, `200` open, `750` partially paid, `1000` paid.
+- `--credit-note-number`: Filter by credit note number.
+- `--start-date`: Only credit notes on or after this date as `dd.mm.yyyy` or Unix timestamp.
+- `--end-date`: Only credit notes on or before this date as `dd.mm.yyyy` or Unix timestamp.
+- `--contact`: ID of the contact whose credit notes to list.
+- `--limit`: Maximum number of credit notes to return.
+- `--offset`: Number of credit notes to skip.
+- `--json`: Output in JSON format.
+
+### `credit-notes:pdf`
+
+Download the PDF of a credit note.
+
+```bash
+sevdesk credit-notes:pdf [options]
+```
+
+**Options:**
+
+- `--id`: ID of the credit note. If omitted, you will be prompted.
+- `--output`: Path to write the PDF to. Defaults to the file name reported by the API.
+- `--prevent-send-by`: Do not mark the credit note as sent by download. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `export:contacts`
+
+Export contacts as a CSV file.
+
+```bash
+sevdesk export:contacts [options]
+```
+
+**Options:**
+
+- `--output`: Path to write the CSV file to. Defaults to the filename of the export.
+- `--limit`: The maximum number of contacts to export.
+- `--json`: Output in JSON format.
+
+### `export:datev`
+
+Export accounting data in the DATEV format as a ZIP archive. The export runs as a background job that the CLI waits for.
+
+```bash
+sevdesk export:datev [options]
+```
+
+**Options:**
+
+- `--start-date`: Start of the export period as `dd.mm.yyyy` or Unix timestamp. If omitted, you will be prompted.
+- `--end-date`: End of the export period as `dd.mm.yyyy` or Unix timestamp. If omitted, you will be prompted.
+- `--format`: The DATEV export format. Supported values are `csv` and `xml`. Defaults to `csv`.
+- `--scope`: The models to include as a string of letters: `E` (earnings), `X` (expenditure), `T` (transactions), `C` (cash register) and `D` (assets). XML exports support only `E` and `X`. Defaults to `EXTCD`.
+- `--output`: Path to write the ZIP archive to. Defaults to the filename of the export.
+- `--timeout`: Maximum number of seconds to wait for the export job. Defaults to `300`.
+- `--json`: Output in JSON format.
+
+### `export:invoices`
+
+Export invoices as a CSV file.
+
+```bash
+sevdesk export:invoices [options]
+```
+
+**Options:**
+
+- `--output`: Path to write the CSV file to. Defaults to the filename of the export.
+- `--limit`: The maximum number of invoices to export.
+- `--start-date`: Only export invoices on or after this date (ISO 8601).
+- `--end-date`: Only export invoices on or before this date (ISO 8601).
+- `--json`: Output in JSON format.
+
+### `export:transactions`
+
+Export transactions as a CSV file.
+
+```bash
+sevdesk export:transactions [options]
+```
+
+**Options:**
+
+- `--output`: Path to write the CSV file to. Defaults to the filename of the export.
+- `--limit`: The maximum number of transactions to export.
+- `--start-date`: Only export transactions on or after this date (ISO 8601).
+- `--end-date`: Only export transactions on or before this date (ISO 8601).
+- `--json`: Output in JSON format.
+
+### `export:vouchers`
+
+Export vouchers as a CSV file.
+
+```bash
+sevdesk export:vouchers [options]
+```
+
+**Options:**
+
+- `--output`: Path to write the CSV file to. Defaults to the filename of the export.
+- `--limit`: The maximum number of vouchers to export.
+- `--start-date`: Only export vouchers on or after this date (ISO 8601).
+- `--end-date`: Only export vouchers on or before this date (ISO 8601).
+- `--json`: Output in JSON format.
+
 ### `guidance:accounts`
 
 List bookable accounts and their allowed tax rules. The first matching filter wins: `--account-number`, `--tax-rule`, `--revenue`, `--expense`. Without a filter, all accounts are listed.
@@ -215,6 +452,172 @@ sevdesk guidance:accounts [options]
 - `--tax-rule`: Tax rule name, for example `USTPFL_UMS_EINN`.
 - `--revenue`: Only show accounts that can be used for revenue. Defaults to `false`.
 - `--expense`: Only show accounts that can be used for expenses. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `invoices:get`
+
+Show a single invoice.
+
+```bash
+sevdesk invoices:get [options]
+```
+
+**Options:**
+
+- `--id`: ID of the invoice. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `invoices:list`
+
+List invoices.
+
+```bash
+sevdesk invoices:list [options]
+```
+
+**Options:**
+
+- `--status`: Filter by status: `50` deactivated recurring, `100` draft, `200` open, `750` partially paid, `1000` paid.
+- `--invoice-number`: Filter by invoice number.
+- `--start-date`: Only invoices on or after this date as `dd.mm.yyyy` or Unix timestamp.
+- `--end-date`: Only invoices on or before this date as `dd.mm.yyyy` or Unix timestamp.
+- `--contact`: ID of the contact whose invoices to list.
+- `--limit`: Maximum number of invoices to return.
+- `--offset`: Number of invoices to skip.
+- `--json`: Output in JSON format.
+
+### `invoices:pdf`
+
+Download the PDF of an invoice.
+
+```bash
+sevdesk invoices:pdf [options]
+```
+
+**Options:**
+
+- `--id`: ID of the invoice. If omitted, you will be prompted.
+- `--output`: Path to write the PDF to. Defaults to the file name reported by the API.
+- `--prevent-send-by`: Do not mark the invoice as sent by download. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `orders:get`
+
+Show a single order.
+
+```bash
+sevdesk orders:get [options]
+```
+
+**Options:**
+
+- `--id`: ID of the order. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `orders:list`
+
+List orders.
+
+```bash
+sevdesk orders:list [options]
+```
+
+**Options:**
+
+- `--status`: Filter by status: `100` draft, `200` delivered, `300` rejected, `500` accepted, `750` partially calculated, `1000` calculated.
+- `--order-number`: Filter by order number.
+- `--start-date`: Only orders on or after this date as `dd.mm.yyyy` or Unix timestamp.
+- `--end-date`: Only orders on or before this date as `dd.mm.yyyy` or Unix timestamp.
+- `--contact`: ID of the contact whose orders to list.
+- `--limit`: Maximum number of orders to return.
+- `--offset`: Number of orders to skip.
+- `--json`: Output in JSON format.
+
+### `orders:pdf`
+
+Download the PDF of an order.
+
+```bash
+sevdesk orders:pdf [options]
+```
+
+**Options:**
+
+- `--id`: ID of the order. If omitted, you will be prompted.
+- `--output`: Path to write the PDF to. Defaults to the file name reported by the API.
+- `--prevent-send-by`: Do not mark the order as sent by download. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `parts:get`
+
+Show a single part.
+
+```bash
+sevdesk parts:get [options]
+```
+
+**Options:**
+
+- `--id`: The part ID. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `parts:list`
+
+List parts.
+
+```bash
+sevdesk parts:list [options]
+```
+
+**Options:**
+
+- `--name`: Filter by part name.
+- `--part-number`: Filter by part number.
+- `--limit`: Maximum number of parts to return.
+- `--offset`: Number of parts to skip.
+- `--json`: Output in JSON format.
+
+### `tags:create`
+
+Create a tag and attach it to a document.
+
+```bash
+sevdesk tags:create [options]
+```
+
+**Options:**
+
+- `--name`: Name of the tag. If omitted, you will be prompted.
+- `--object-type`: Type of the document to tag: `Invoice`, `Voucher`, `Order` or `CreditNote`. If omitted, you will be prompted.
+- `--object-id`: ID of the document to tag. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `tags:delete`
+
+Delete a tag.
+
+```bash
+sevdesk tags:delete [options]
+```
+
+**Options:**
+
+- `--id`: The tag ID. If omitted, you will be prompted.
+- `--yes`: Skip the confirmation prompt. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `tags:list`
+
+List tags.
+
+```bash
+sevdesk tags:list [options]
+```
+
+**Options:**
+
+- `--limit`: Maximum number of tags to return.
+- `--offset`: Number of tags to skip.
 - `--json`: Output in JSON format.
 
 ### `transactions:create`

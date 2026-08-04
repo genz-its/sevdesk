@@ -19,7 +19,9 @@ export default defineCommand({
       importType: z
         .enum(['CSV', 'MT940'])
         .default('CSV')
-        .describe('The file format used to import transactions.'),
+        .describe(
+          'The file format used to import transactions. Supported values are CSV and MT940.',
+        ),
       accountingNumber: z.coerce
         .number()
         .optional()

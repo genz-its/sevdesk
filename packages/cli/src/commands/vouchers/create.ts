@@ -20,7 +20,9 @@ export default defineCommand({
       status: z
         .enum(['draft', 'open'])
         .default('open')
-        .describe('Status of the created voucher.'),
+        .describe(
+          'Status of the created voucher. Supported values are draft and open.',
+        ),
       creditDebit: z
         .enum(['C', 'D'])
         .default('C')
