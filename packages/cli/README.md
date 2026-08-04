@@ -795,6 +795,6 @@ sevdesk vouchers:reset-to-open [options]
 
 ## License
 
-[MIT](../../LICENSE)
+See [LICENSE](https://github.com/genz-its/sevdesk/blob/main/LICENSE).
 
 [^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevDesk GmbH or any of their affiliates or subsidiaries.
