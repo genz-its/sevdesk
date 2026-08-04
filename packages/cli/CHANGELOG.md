@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.1](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.0...sevdesk-cli-v0.1.1) (2026-08-04)
+
+
+### Features
+
+* add contact addresses, communication ways and voucher positions ([90edc22](https://github.com/genz-its/sevdesk/commit/90edc2275bbd99d568464814bb3da2bd1bb0e25d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @genz-its/sevdesk-sdk bumped from 0.1.0 to 0.1.1
+
 ## 0.1.0 (2026-08-04)
 
 ### Features
