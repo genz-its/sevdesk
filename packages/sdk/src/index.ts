@@ -7,6 +7,7 @@ export type {
   QueryValue,
   SevDeskOptions,
 } from './http-client';
+export * from './resources/accounts-datev';
 export * from './resources/basics';
 export * from './resources/check-accounts';
 export * from './resources/communication-ways';

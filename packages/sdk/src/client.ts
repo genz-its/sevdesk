@@ -1,5 +1,6 @@
 import type { SevDeskOptions } from './http-client';
 import { HttpClient } from './http-client';
+import { AccountsDatevResource } from './resources/accounts-datev';
 import { BasicsResource } from './resources/basics';
 import { CheckAccountsResource } from './resources/check-accounts';
 import { CommunicationWaysResource } from './resources/communication-ways';
@@ -17,6 +18,7 @@ import { TransactionsResource } from './resources/transactions';
 import { VouchersResource } from './resources/vouchers';
 
 export class SevDesk {
+  public readonly accountsDatev: AccountsDatevResource;
   public readonly basics: BasicsResource;
   public readonly checkAccounts: CheckAccountsResource;
   public readonly communicationWays: CommunicationWaysResource;
@@ -35,6 +37,7 @@ export class SevDesk {
 
   constructor(options: SevDeskOptions) {
     const http = new HttpClient(options);
+    this.accountsDatev = new AccountsDatevResource(http);
     this.basics = new BasicsResource(http);
     this.checkAccounts = new CheckAccountsResource(http);
     this.communicationWays = new CommunicationWaysResource(http);

@@ -2,17 +2,15 @@
 
 ## [0.1.2](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.1...sevdesk-cli-v0.1.2) (2026-08-04)
 
-
 ### Bug Fixes
 
-* filter unbooked transactions client-side and render legacy voucher positions ([fd49258](https://github.com/genz-its/sevdesk/commit/fd492581bb6484f991fc5146727c4c552df1da6c))
-
+- filter unbooked transactions client-side and render legacy voucher positions ([fd49258](https://github.com/genz-its/sevdesk/commit/fd492581bb6484f991fc5146727c4c552df1da6c))
 
 ### Dependencies
 
-* The following workspace dependencies were updated
-  * dependencies
-    * @genz-its/sevdesk-sdk bumped from 0.1.1 to 0.1.2
+- The following workspace dependencies were updated
+  - dependencies
+    - @genz-its/sevdesk-sdk bumped from 0.1.1 to 0.1.2
 
 ## [0.1.1](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.0...sevdesk-cli-v0.1.1) (2026-08-04)
 

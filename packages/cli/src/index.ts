@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { defineConfig, processConfig } from '@robingenz/zli';
 import { consola } from 'consola';
+import accountsDatevGet from './commands/accounts-datev/get';
+import accountsDatevList from './commands/accounts-datev/list';
 import accountsBalance from './commands/accounts/balance';
 import accountsCreateClearing from './commands/accounts/create-clearing';
 import accountsCreateFileImport from './commands/accounts/create-file-import';
@@ -61,6 +63,8 @@ const config = defineConfig({
     login,
     logout,
     doctor,
+    'accounts-datev:get': accountsDatevGet,
+    'accounts-datev:list': accountsDatevList,
     'accounts:balance': accountsBalance,
     'accounts:create-clearing': accountsCreateClearing,
     'accounts:create-file-import': accountsCreateFileImport,

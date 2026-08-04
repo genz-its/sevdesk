@@ -17,6 +17,7 @@ How to set up an automated voucher workflow (upload receipts, match them to open
 
 - Find valid booking accounts with `sevdesk guidance:accounts --expense`. Each account lists its **allowed tax rules and rates** — using a rate outside the allowed set is rejected by the API (HTTP 422).
 - Typical cases: domestic expenses with VAT use the deductible input tax rule with the invoice's tax rate. **Invoices from foreign SaaS vendors are usually Reverse Charge (§13b UStG) — 0% tax rate with the matching reverse-charge rule.** Getting this wrong is the most common mistake; have accounting sign off a vendor-to-account/tax-rule mapping table once, then automate against it.
+- `guidance:accounts` covers only the VAT-relevant account picker. For accounts outside it (for example German tax accounts like 7600 Körperschaftsteuer), resolve the ID with `sevdesk accounts-datev:list --number <n>`. **Hidden accounts** do not appear in that listing, but can be fetched by ID via `sevdesk accounts-datev:get` — IDs are ordered by account number, so a hidden account's ID usually sits between the IDs of its visible neighbors (verify the number in the output before using it). Both commands rely on an undocumented sevdesk endpoint that may change without notice.
 
 ## 4. Creating vouchers
 

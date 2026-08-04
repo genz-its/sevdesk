@@ -17,7 +17,7 @@ function formatTaxRules(taxRules: AllowedTaxRule[]): string {
 
 export default defineCommand({
   description:
-    'List bookable accounts and their allowed tax rules. The first matching filter wins: --account-number, --tax-rule, --revenue, --expense. Without a filter, all accounts are listed.',
+    'List bookable accounts and their allowed tax rules. Covers only the ReceiptGuidance subset of VAT-relevant accounts — use accounts-datev:list for all booking accounts. The first matching filter wins: --account-number, --tax-rule, --revenue, --expense. Without a filter, all accounts are listed.',
   options: defineOptions(
     z.object({
       accountNumber: z

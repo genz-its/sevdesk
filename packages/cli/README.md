@@ -83,6 +83,8 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`login`](#login)
 - [`logout`](#logout)
 - [`doctor`](#doctor)
+- [`accounts-datev:get`](#accounts-datevget)
+- [`accounts-datev:list`](#accounts-datevlist)
 - [`accounts:balance`](#accountsbalance)
 - [`accounts:create-clearing`](#accountscreate-clearing)
 - [`accounts:create-file-import`](#accountscreate-file-import)
@@ -158,6 +160,35 @@ sevdesk doctor [options]
 
 **Options:**
 
+- `--json`: Output in JSON format.
+
+### `accounts-datev:get`
+
+Show a single booking account (AccountDatev), including hidden accounts that [`accounts-datev:list`](#accounts-datevlist) does not return. Backed by an undocumented sevdesk endpoint that may change without notice.
+
+```bash
+sevdesk accounts-datev:get [options]
+```
+
+**Options:**
+
+- `--id`: The booking account ID. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `accounts-datev:list`
+
+List booking accounts (AccountDatev). Covers only accounts visible in the sevdesk account picker; hidden accounts (for example some tax accounts) are reachable via [`accounts-datev:get`](#accounts-datevget). Backed by an undocumented sevdesk endpoint that may change without notice.
+
+```bash
+sevdesk accounts-datev:list [options]
+```
+
+**Options:**
+
+- `--number`: Only show accounts with this account number. Filtered client-side across all visible accounts.
+- `--name-like`: Only show accounts whose name contains this text. Filtered client-side across all visible accounts.
+- `--limit`: Maximum number of accounts to return.
+- `--offset`: Number of accounts to skip. Ignored when a filter is used.
 - `--json`: Output in JSON format.
 
 ### `accounts:balance`
@@ -496,7 +527,7 @@ sevdesk export:vouchers [options]
 
 ### `guidance:accounts`
 
-List bookable accounts and their allowed tax rules. The first matching filter wins: `--account-number`, `--tax-rule`, `--revenue`, `--expense`. Without a filter, all accounts are listed.
+List bookable accounts and their allowed tax rules. Covers only the ReceiptGuidance subset of VAT-relevant accounts — use [`accounts-datev:list`](#accounts-datevlist) for all booking accounts. The first matching filter wins: `--account-number`, `--tax-rule`, `--revenue`, `--expense`. Without a filter, all accounts are listed.
 
 ```bash
 sevdesk guidance:accounts [options]
