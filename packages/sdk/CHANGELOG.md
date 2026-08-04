@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.2...sevdesk-sdk-v0.1.3) (2026-08-04)
+
+
+### Features
+
+* add booking account lookup via undocumented AccountDatev endpoint ([56006b6](https://github.com/genz-its/sevdesk/commit/56006b6189fa481eafe81c4ed104ef7946025404))
+
 ## [0.1.2](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.1...sevdesk-sdk-v0.1.2) (2026-08-04)
 
 ### Bug Fixes
