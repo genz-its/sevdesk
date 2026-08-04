@@ -8,6 +8,7 @@ import createCommand from '../src/commands/vouchers/create';
 import enshrineCommand from '../src/commands/vouchers/enshrine';
 import getCommand from '../src/commands/vouchers/get';
 import listCommand from '../src/commands/vouchers/list';
+import positionsCommand from '../src/commands/vouchers/positions';
 import resetToOpenCommand from '../src/commands/vouchers/reset-to-open';
 import { isInteractive } from '../src/interactive';
 import { promptConfirm } from '../src/prompt';
@@ -31,6 +32,17 @@ const voucher = {
   sumGross: '119.00',
   currency: 'EUR',
   enshrined: null,
+};
+
+const position = {
+  id: '1001',
+  objectName: 'VoucherPos',
+  voucher: { id: '42', objectName: 'Voucher' },
+  accountDatev: { id: '27', objectName: 'AccountDatev' },
+  taxRate: '19',
+  net: false,
+  sumNet: '100.00',
+  sumGross: '119.00',
 };
 
 function jsonResponse(payload?: unknown): Response {
@@ -155,6 +167,68 @@ describe('voucher commands', () => {
       await listCommand.action({ json: false }, undefined);
       expect(consola.info).toHaveBeenCalledWith('No vouchers found.');
       expect(console.log).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('positions', () => {
+    it('filters by voucher and embeds the booking account', async () => {
+      const fetchMock = stubFetch({ objects: [position] });
+      await positionsCommand.action(
+        { voucher: 42, limit: 10, json: false },
+        undefined,
+      );
+      const { url, init } = requestAt(fetchMock, 0);
+      expect(init.method).toBe('GET');
+      expect(url).toContain('/VoucherPos?');
+      expect(url).toContain('voucher%5Bid%5D=42');
+      expect(url).toContain('voucher%5BobjectName%5D=Voucher');
+      expect(url).toContain('limit=10');
+      expect(url).toContain('embed=accountDatev');
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('ACCOUNT');
+      expect(output).toContain('27');
+      expect(output).toContain('119.00');
+    });
+
+    it('lists all positions without --voucher', async () => {
+      const fetchMock = stubFetch({ objects: [position] });
+      await positionsCommand.action({ json: false }, undefined);
+      const { url } = requestAt(fetchMock, 0);
+      expect(url).not.toContain('voucher%5Bid%5D');
+      expect(url).toContain('embed=accountDatev');
+    });
+
+    it('prints the number and name of the embedded booking account', async () => {
+      stubFetch({
+        objects: [
+          {
+            ...position,
+            accountDatev: {
+              id: '27',
+              objectName: 'AccountDatev',
+              number: '3300',
+              name: 'Wareneingang',
+            },
+          },
+        ],
+      });
+      await positionsCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('3300 Wareneingang');
+    });
+
+    it('prints the positions as JSON', async () => {
+      stubFetch({ objects: [position] });
+      await positionsCommand.action({ json: true }, undefined);
+      expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual([
+        position,
+      ]);
+    });
+
+    it('reports an empty result', async () => {
+      stubFetch({ objects: [] });
+      await positionsCommand.action({ json: false }, undefined);
+      expect(consola.info).toHaveBeenCalledWith('No voucher positions found.');
     });
   });
 

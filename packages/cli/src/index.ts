@@ -6,6 +6,9 @@ import accountsCreateClearing from './commands/accounts/create-clearing';
 import accountsCreateFileImport from './commands/accounts/create-file-import';
 import accountsGet from './commands/accounts/get';
 import accountsList from './commands/accounts/list';
+import contactsAddAddress from './commands/contacts/add-address';
+import contactsAddEmail from './commands/contacts/add-email';
+import contactsAddPhone from './commands/contacts/add-phone';
 import contactsCreate from './commands/contacts/create';
 import contactsDelete from './commands/contacts/delete';
 import contactsGet from './commands/contacts/get';
@@ -42,6 +45,7 @@ import vouchersCreate from './commands/vouchers/create';
 import vouchersEnshrine from './commands/vouchers/enshrine';
 import vouchersGet from './commands/vouchers/get';
 import vouchersList from './commands/vouchers/list';
+import vouchersPositions from './commands/vouchers/positions';
 import vouchersResetToDraft from './commands/vouchers/reset-to-draft';
 import vouchersResetToOpen from './commands/vouchers/reset-to-open';
 import { formatError } from './errors';
@@ -62,6 +66,9 @@ const config = defineConfig({
     'accounts:create-file-import': accountsCreateFileImport,
     'accounts:get': accountsGet,
     'accounts:list': accountsList,
+    'contacts:add-address': contactsAddAddress,
+    'contacts:add-email': contactsAddEmail,
+    'contacts:add-phone': contactsAddPhone,
     'contacts:create': contactsCreate,
     'contacts:delete': contactsDelete,
     'contacts:get': contactsGet,
@@ -95,6 +102,7 @@ const config = defineConfig({
     'vouchers:enshrine': vouchersEnshrine,
     'vouchers:get': vouchersGet,
     'vouchers:list': vouchersList,
+    'vouchers:positions': vouchersPositions,
     'vouchers:reset-to-draft': vouchersResetToDraft,
     'vouchers:reset-to-open': vouchersResetToOpen,
   },

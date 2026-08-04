@@ -67,3 +67,8 @@ sevdesk vouchers:book \
 - sevdesk documents no rate limit, but be gentle: paginate with `--limit` (maximum 1000) and avoid tight retry loops — the SDK already retries with backoff.
 - Subscribe to the [sevdesk API newsletter](https://landing.sevdesk.de/api-newsletter) — it is the only breaking-change channel. A scheduled `sevdesk doctor --json` makes a good health check.
 - Dry-run new logic against a **sevdesk trial account** (trials run on the highest tariff) before pointing it at production.
+
+## 7. Historical analysis
+
+- Reuse past decisions instead of guessing: `sevdesk vouchers:positions --voucher <voucherId> --json` shows which **booking account and tax rate** a supplier's earlier vouchers used. Look up the supplier's vouchers with `sevdesk vouchers:list --contact <contactId> --json` first.
+- The API does **not** expose the link between a booked voucher and its bank transaction. Use `sevdesk transactions:list --unbooked` to see what is still open, and infer historical voucher-transaction mappings via amount, date, and supplier.

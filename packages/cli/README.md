@@ -88,6 +88,9 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`accounts:create-file-import`](#accountscreate-file-import)
 - [`accounts:get`](#accountsget)
 - [`accounts:list`](#accountslist)
+- [`contacts:add-address`](#contactsadd-address)
+- [`contacts:add-email`](#contactsadd-email)
+- [`contacts:add-phone`](#contactsadd-phone)
 - [`contacts:create`](#contactscreate)
 - [`contacts:delete`](#contactsdelete)
 - [`contacts:get`](#contactsget)
@@ -121,6 +124,7 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`vouchers:enshrine`](#vouchersenshrine)
 - [`vouchers:get`](#vouchersget)
 - [`vouchers:list`](#voucherslist)
+- [`vouchers:positions`](#voucherspositions)
 - [`vouchers:reset-to-draft`](#vouchersreset-to-draft)
 - [`vouchers:reset-to-open`](#vouchersreset-to-open)
 
@@ -227,6 +231,56 @@ sevdesk accounts:list [options]
 - `--offset`: The number of check accounts to skip.
 - `--json`: Output in JSON format.
 
+### `contacts:add-address`
+
+Add an address to a contact.
+
+```bash
+sevdesk contacts:add-address [options]
+```
+
+**Options:**
+
+- `--contact`: The contact ID. If omitted, you will be prompted.
+- `--street`: Street and house number.
+- `--zip`: Zip code.
+- `--city`: City name.
+- `--country`: ID of the country as a StaticCountry ID, for example `1` for Germany. There is no lookup endpoint in this CLI, but an existing address of a contact reveals the IDs of other countries. If omitted, you will be prompted.
+- `--category`: ID of the address category. The sevdesk API does not document the IDs, they are listed by a `GET` to `/Category?objectType=ContactAddress` and an existing address of a contact reveals the ones in use. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
+### `contacts:add-email`
+
+Add an e-mail address to a contact.
+
+```bash
+sevdesk contacts:add-email [options]
+```
+
+**Options:**
+
+- `--contact`: The contact ID. If omitted, you will be prompted.
+- `--email`: The e-mail address. If omitted, you will be prompted.
+- `--key`: ID of the communication way key: `1` private, `2` work, `7` newsletter, `8` invoicing. Defaults to `2`.
+- `--main`: Mark the e-mail address as the main one of the contact. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `contacts:add-phone`
+
+Add a phone number to a contact.
+
+```bash
+sevdesk contacts:add-phone [options]
+```
+
+**Options:**
+
+- `--contact`: The contact ID. If omitted, you will be prompted.
+- `--phone`: The phone number. If omitted, you will be prompted.
+- `--key`: ID of the communication way key: `1` private, `2` work, `3` fax, `4` mobile. Defaults to `2`.
+- `--main`: Mark the phone number as the main one of the contact. Defaults to `false`.
+- `--json`: Output in JSON format.
+
 ### `contacts:create`
 
 Create a contact. Use `--name` for organizations and `--surename` together with `--familyname` for persons.
@@ -263,7 +317,7 @@ sevdesk contacts:delete [options]
 
 ### `contacts:get`
 
-Show a single contact.
+Show a single contact with its addresses and communication ways.
 
 ```bash
 sevdesk contacts:get [options]
@@ -272,7 +326,7 @@ sevdesk contacts:get [options]
 **Options:**
 
 - `--id`: The contact ID. If omitted, you will be prompted.
-- `--json`: Output in JSON format.
+- `--json`: Output in JSON format. Prints an object with the keys `contact`, `addresses` and `communicationWays`.
 
 ### `contacts:list`
 
@@ -286,6 +340,8 @@ sevdesk contacts:list [options]
 
 - `--name`: Filter by organization, first or last name.
 - `--customer-number`: Filter by customer number.
+- `--depth`: Contact depth: `0` returns only organizations, `1` organizations and persons. Defaults to `0`.
+- `--category`: ID of the contact category to filter by: `2` supplier, `3` customer, `4` partner.
 - `--limit`: Maximum number of contacts to return.
 - `--offset`: Number of contacts to skip.
 - `--json`: Output in JSON format.
@@ -763,6 +819,21 @@ sevdesk vouchers:list [options]
 - `--contact`: ID of the contact whose vouchers to list.
 - `--limit`: Maximum number of vouchers to return.
 - `--offset`: Number of vouchers to skip.
+- `--json`: Output in JSON format.
+
+### `vouchers:positions`
+
+List voucher positions.
+
+```bash
+sevdesk vouchers:positions [options]
+```
+
+**Options:**
+
+- `--voucher`: ID of the voucher whose positions to list.
+- `--limit`: Maximum number of positions to return.
+- `--offset`: Number of positions to skip.
 - `--json`: Output in JSON format.
 
 ### `vouchers:reset-to-draft`

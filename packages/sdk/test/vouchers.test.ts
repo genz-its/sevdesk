@@ -57,6 +57,30 @@ describe('VouchersResource.list', () => {
 
     expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Voucher?status=50`);
   });
+
+  it('serializes the linked object filter', async () => {
+    const fetch = createMockFetch({ objects: [] });
+
+    await createResource(fetch).list({
+      linkedObjectId: 77,
+      linkedObjectName: 'CheckAccountTransaction',
+    });
+
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/Voucher?object%5Bid%5D=77` +
+        '&object%5BobjectName%5D=CheckAccountTransaction',
+    );
+  });
+
+  it('omits the linked object name when no linked object id is given', async () => {
+    const fetch = createMockFetch({ objects: [] });
+
+    await createResource(fetch).list({
+      linkedObjectName: 'CheckAccountTransaction',
+    });
+
+    expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Voucher`);
+  });
 });
 
 describe('VouchersResource.get', () => {
@@ -367,5 +391,23 @@ describe('VouchersResource.listPositions', () => {
     expect(lastRequest(fetch).url).toBe(
       `${BASE_URL}/VoucherPos?voucher%5Bid%5D=1&voucher%5BobjectName%5D=Voucher&limit=5`,
     );
+  });
+
+  it('omits the voucher filter when no voucher id is given', async () => {
+    const fetch = createMockFetch({ objects: [] });
+
+    await createResource(fetch).listPositions();
+
+    const { url, init } = lastRequest(fetch);
+    expect(url).toBe(`${BASE_URL}/VoucherPos`);
+    expect(init.method).toBe('GET');
+  });
+
+  it('serializes the embed fields', async () => {
+    const fetch = createMockFetch({ objects: [] });
+
+    await createResource(fetch).listPositions({ embed: ['voucher'] });
+
+    expect(lastRequest(fetch).url).toBe(`${BASE_URL}/VoucherPos?embed=voucher`);
   });
 });

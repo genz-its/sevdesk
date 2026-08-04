@@ -61,6 +61,19 @@ export interface ListVouchersOptions extends ListOptions {
   startDate?: DateInput;
   endDate?: DateInput;
   contactId?: number;
+  /**
+   * Filters vouchers by a linked object, for example a document the voucher
+   * originated from. Payment bookings are not exposed as linked objects, so
+   * this cannot look up the voucher booked against a bank transaction.
+   */
+  linkedObjectId?: number;
+  linkedObjectName?: string;
+  embed?: string[];
+}
+
+export interface ListVoucherPositionsOptions extends ListOptions {
+  /** Only returns the positions of this voucher. */
+  voucherId?: number;
   embed?: string[];
 }
 
@@ -178,6 +191,8 @@ export class VouchersResource extends BaseResource {
       startDate,
       endDate,
       contactId,
+      linkedObjectId,
+      linkedObjectName,
       limit,
       offset,
       embed,
@@ -193,6 +208,9 @@ export class VouchersResource extends BaseResource {
         endDate: toOptionalVoucherDate(endDate),
         'contact[id]': contactId,
         'contact[objectName]': contactId === undefined ? undefined : 'Contact',
+        'object[id]': linkedObjectId,
+        'object[objectName]':
+          linkedObjectId === undefined ? undefined : linkedObjectName,
         limit,
         offset,
         embed,
@@ -342,19 +360,20 @@ export class VouchersResource extends BaseResource {
     });
   }
 
-  /** Retrieves the positions of a voucher via `GET /VoucherPos`. */
+  /** Retrieves voucher positions via `GET /VoucherPos`. */
   public listPositions(
-    options: { voucherId: number } & ListOptions,
+    options: ListVoucherPositionsOptions = {},
   ): Promise<VoucherPosition[]> {
-    const { voucherId, limit, offset } = options;
+    const { voucherId, limit, offset, embed } = options;
     return this.http.request<VoucherPosition[]>({
       method: 'GET',
       path: '/VoucherPos',
       query: {
         'voucher[id]': voucherId,
-        'voucher[objectName]': 'Voucher',
+        'voucher[objectName]': voucherId === undefined ? undefined : 'Voucher',
         limit,
         offset,
+        embed,
       },
     });
   }

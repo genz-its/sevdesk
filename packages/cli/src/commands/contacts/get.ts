@@ -1,3 +1,4 @@
+import type { CommunicationWay, ContactAddress } from '@genz-its/sevdesk-sdk';
 import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
@@ -5,8 +6,12 @@ import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
 import { printJson } from '../../output';
 
+/** The `/ContactAddress` endpoint cannot filter by contact, so we filter here. */
+const ADDRESS_LOOKUP_LIMIT = 100;
+
 export default defineCommand({
-  description: 'Show a single contact.',
+  description:
+    'Show a single contact with its addresses and communication ways.',
   options: defineOptions(
     z.object({
       id: z.coerce
@@ -24,8 +29,17 @@ export default defineCommand({
       question: 'Enter the contact ID:',
     });
     const contact = await client.contacts.get({ contactId });
+    const allAddresses = await client.contactAddresses.list({
+      limit: ADDRESS_LOOKUP_LIMIT,
+    });
+    const addresses = allAddresses.filter(
+      (address) => address.contact.id === String(contactId),
+    );
+    const communicationWays = await client.communicationWays.list({
+      contactId,
+    });
     if (options.json) {
-      printJson(contact);
+      printJson({ contact, addresses, communicationWays });
       return;
     }
     consola.info(`ID: ${contact.id}`);
@@ -38,5 +52,31 @@ export default defineCommand({
     consola.info(`Description: ${contact.description ?? '-'}`);
     consola.info(`VAT number: ${contact.vatNumber ?? '-'}`);
     consola.info(`Tax number: ${contact.taxNumber ?? '-'}`);
+    printSection('Addresses:', addresses.map(formatAddress));
+    printSection(
+      'Communication ways:',
+      communicationWays.map(formatCommunicationWay),
+    );
   },
 });
+
+function printSection(title: string, lines: string[]): void {
+  consola.info(title);
+  for (const line of lines.length === 0 ? ['-'] : lines) {
+    consola.info(`  ${line}`);
+  }
+}
+
+function formatAddress(address: ContactAddress): string {
+  const parts = [
+    address.street,
+    [address.zip, address.city].filter((part) => part).join(' '),
+    `country ${address.country.id}`,
+  ];
+  return parts.filter((part) => part).join(', ');
+}
+
+function formatCommunicationWay(communicationWay: CommunicationWay): string {
+  const main = communicationWay.main === '1' ? ' (main)' : '';
+  return `${communicationWay.type}: ${communicationWay.value}${main}`;
+}

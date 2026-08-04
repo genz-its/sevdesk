@@ -17,6 +17,18 @@ export default defineCommand({
         .string()
         .optional()
         .describe('Filter by customer number.'),
+      depth: z.coerce
+        .number()
+        .optional()
+        .describe(
+          'Contact depth: 0 returns only organizations, 1 organizations and persons. Defaults to 0.',
+        ),
+      category: z.coerce
+        .number()
+        .optional()
+        .describe(
+          'ID of the contact category to filter by: 2 supplier, 3 customer, 4 partner.',
+        ),
       limit: z.coerce
         .number()
         .optional()
@@ -33,6 +45,8 @@ export default defineCommand({
     const contacts = await client.contacts.list({
       name: options.name,
       customerNumber: options.customerNumber,
+      depth: toDepth(options.depth),
+      categoryId: options.category,
       limit: options.limit,
       offset: options.offset,
     });
@@ -55,6 +69,13 @@ export default defineCommand({
     );
   },
 });
+
+function toDepth(depth: number | undefined): '0' | '1' | undefined {
+  if (depth === undefined) {
+    return undefined;
+  }
+  return depth === 0 ? '0' : '1';
+}
 
 function formatContactName(contact: Contact): string {
   return (

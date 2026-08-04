@@ -9,6 +9,8 @@ export type {
 } from './http-client';
 export * from './resources/basics';
 export * from './resources/check-accounts';
+export * from './resources/communication-ways';
+export * from './resources/contact-addresses';
 export * from './resources/contacts';
 export * from './resources/credit-notes';
 export * from './resources/exports';
