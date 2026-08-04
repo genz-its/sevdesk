@@ -16,4 +16,4 @@ Documentation follows.
 
 [MIT](../../LICENSE)
 
-[^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevdesk GmbH or any of their affiliates or subsidiaries.
+[^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevDesk GmbH or any of their affiliates or subsidiaries.
