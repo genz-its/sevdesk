@@ -23,6 +23,8 @@ const voucher = {
   id: '42',
   objectName: 'Voucher',
   voucherDate: '2024-01-15T00:00:00+01:00',
+  deliveryDate: '2024-01-01T00:00:00+01:00',
+  deliveryDateUntil: '2024-01-31T00:00:00+01:00',
   supplier: null,
   supplierName: 'Acme GmbH',
   description: 'RE-1',
@@ -124,6 +126,22 @@ describe('voucher commands', () => {
       expect(output).toContain('SUPPLIER');
       expect(output).toContain('Acme GmbH');
       expect(output).toContain('119.00');
+    });
+
+    it('renders the service period as a single column', async () => {
+      stubFetch({
+        objects: [
+          voucher,
+          { ...voucher, id: '43', deliveryDateUntil: null },
+          { ...voucher, id: '44', deliveryDate: null, deliveryDateUntil: null },
+        ],
+      });
+      await listCommand.action({ json: false }, undefined);
+      const output = vi.mocked(console.log).mock.calls.flat().join('\n');
+      expect(output).toContain('SERVICEPERIOD');
+      expect(output).toContain('2024-01-01 – 2024-01-31');
+      // A voucher without an end date collapses to the single service date.
+      expect(output).toMatch(/43\s+\S+\s+2024-01-01\s/);
     });
 
     it('prints the name of the embedded supplier', async () => {
@@ -261,6 +279,22 @@ describe('voucher commands', () => {
       );
     });
 
+    it('prints the service period', async () => {
+      stubFetch({ objects: [voucher] });
+      await getCommand.action({ id: 42, json: false }, undefined);
+      expect(consola.info).toHaveBeenCalledWith(
+        'Service period: 2024-01-01 – 2024-01-31',
+      );
+    });
+
+    it('prints a dash when the voucher has no service period', async () => {
+      stubFetch({
+        objects: [{ ...voucher, deliveryDate: null, deliveryDateUntil: null }],
+      });
+      await getCommand.action({ id: 42, json: false }, undefined);
+      expect(consola.info).toHaveBeenCalledWith('Service period: -');
+    });
+
     it('prints the name of the embedded person supplier', async () => {
       stubFetch({
         objects: [
@@ -350,6 +384,62 @@ describe('voucher commands', () => {
       expect(consola.success).toHaveBeenCalledWith(
         'Created voucher 42 with status 100.',
       );
+    });
+
+    it('sends the service period', async () => {
+      const path = await writeReceipt();
+      const fetchMock = stubFetch(
+        { objects: { filename: 'tmp-3.pdf' } },
+        { objects: { voucher, voucherPos: [] } },
+      );
+      await createCommand.action(
+        {
+          file: path,
+          status: 'open',
+          creditDebit: 'C',
+          taxRule: 9,
+          accountDatev: 1600,
+          amount: 119,
+          net: false,
+          taxRate: 19,
+          supplierName: 'Acme GmbH',
+          deliveryDate: '01.01.2024',
+          deliveryDateUntil: '31.03.2024',
+          json: false,
+        },
+        undefined,
+      );
+      const body = JSON.parse(requestAt(fetchMock, 1).init.body as string);
+      expect(body.voucher).toMatchObject({
+        deliveryDate: '01.01.2024',
+        deliveryDateUntil: '31.03.2024',
+      });
+    });
+
+    it('exits when --delivery-date-until is used without --delivery-date', async () => {
+      const fetchMock = stubFetch();
+      await expectExit(
+        createCommand.action(
+          {
+            file: await writeReceipt(),
+            status: 'open',
+            creditDebit: 'C',
+            taxRule: 9,
+            accountDatev: 1600,
+            amount: 119,
+            net: false,
+            taxRate: 19,
+            supplierName: 'Acme GmbH',
+            deliveryDateUntil: '31.03.2024',
+            json: false,
+          },
+          undefined,
+        ),
+      );
+      expect(consola.error).toHaveBeenCalledWith(
+        'You must provide --delivery-date when using --delivery-date-until.',
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('sends a net position and a draft status with --net and --status draft', async () => {

@@ -3,7 +3,12 @@ import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
-import { contactLabel, printJson, printTable } from '../../output';
+import {
+  contactLabel,
+  printJson,
+  printTable,
+  servicePeriodLabel,
+} from '../../output';
 import { fetchAll } from '../../pagination';
 
 export default defineCommand({
@@ -81,6 +86,10 @@ export default defineCommand({
       vouchers.map((voucher) => ({
         id: voucher.id,
         date: voucher.voucherDate ?? '',
+        servicePeriod: servicePeriodLabel(
+          voucher.deliveryDate,
+          voucher.deliveryDateUntil,
+        ),
         supplier: voucher.supplierName ?? contactLabel(voucher.supplier),
         description: voucher.description ?? '',
         gross: voucher.sumGross,

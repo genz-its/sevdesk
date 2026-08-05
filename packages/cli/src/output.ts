@@ -20,6 +20,23 @@ export function contactLabel(ref: ContactLike | null | undefined): string {
   return ref.name || personName || ref.id || '-';
 }
 
+/**
+ * Formats a service period (Leistungszeitraum) as plain dates, collapsing to a
+ * single date when there is no end. The API returns local datetimes, so the
+ * date part is sliced off instead of parsed, which would shift the day across
+ * the UTC boundary.
+ */
+export function servicePeriodLabel(
+  from: string | null | undefined,
+  until: string | null | undefined,
+): string {
+  if (!from) {
+    return '';
+  }
+  const start = from.slice(0, 10);
+  return until ? `${start} – ${until.slice(0, 10)}` : start;
+}
+
 export function printJson(value: unknown): void {
   console.log(JSON.stringify(value, null, 2));
 }

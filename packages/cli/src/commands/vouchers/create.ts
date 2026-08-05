@@ -59,6 +59,18 @@ export default defineCommand({
         .string()
         .optional()
         .describe('Date as dd.mm.yyyy or Unix timestamp.'),
+      deliveryDate: z
+        .string()
+        .optional()
+        .describe(
+          'Start of the service period, or the single service date, as dd.mm.yyyy or Unix timestamp.',
+        ),
+      deliveryDateUntil: z
+        .string()
+        .optional()
+        .describe(
+          'End of the service period as dd.mm.yyyy or Unix timestamp. Requires --delivery-date.',
+        ),
       supplierId: z.coerce
         .number()
         .optional()
@@ -76,6 +88,15 @@ export default defineCommand({
     }),
   ),
   action: async (options) => {
+    if (
+      options.deliveryDateUntil !== undefined &&
+      options.deliveryDate === undefined
+    ) {
+      consola.error(
+        'You must provide --delivery-date when using --delivery-date-until.',
+      );
+      process.exit(1);
+    }
     const client = await requireClient();
     const path = await requireStringOption({
       value: options.file,
@@ -120,6 +141,8 @@ export default defineCommand({
         taxRuleId,
         voucherDate: options.voucherDate,
         payDate: options.payDate,
+        deliveryDate: options.deliveryDate,
+        deliveryDateUntil: options.deliveryDateUntil,
         supplierId: options.supplierId,
         supplierName,
         description: options.description,

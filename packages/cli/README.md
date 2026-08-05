@@ -799,6 +799,8 @@ sevdesk vouchers:create [options]
 - `--tax-rate`: Tax rate of the voucher position in percent. Defaults to `19`.
 - `--voucher-date`: Date as `dd.mm.yyyy` or Unix timestamp.
 - `--pay-date`: Date as `dd.mm.yyyy` or Unix timestamp.
+- `--delivery-date`: Start of the service period (Leistungszeitraum), or the single service date, as `dd.mm.yyyy` or Unix timestamp.
+- `--delivery-date-until`: End of the service period as `dd.mm.yyyy` or Unix timestamp. Requires `--delivery-date`.
 - `--supplier-id`: ID of the supplier contact.
 - `--supplier-name`: Name of the supplier, used when no supplier ID is given.
 - `--description`: The voucher number.

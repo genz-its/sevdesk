@@ -3,7 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
-import { contactLabel, printJson } from '../../output';
+import { contactLabel, printJson, servicePeriodLabel } from '../../output';
 
 export default defineCommand({
   description: 'Show a single voucher.',
@@ -31,6 +31,12 @@ export default defineCommand({
     consola.info(`ID: ${voucher.id}`);
     consola.info(`Status: ${voucher.status ?? '-'}`);
     consola.info(`Date: ${voucher.voucherDate ?? '-'}`);
+    consola.info(
+      `Service period: ${
+        servicePeriodLabel(voucher.deliveryDate, voucher.deliveryDateUntil) ||
+        '-'
+      }`,
+    );
     consola.info(
       `Supplier: ${voucher.supplierName ?? contactLabel(voucher.supplier)}`,
     );
