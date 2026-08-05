@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.4](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.3...sevdesk-cli-v0.1.4) (2026-08-05)
+
+
+### Features
+
+* set the service period on vouchers:create ([8b73555](https://github.com/genz-its/sevdesk/commit/8b73555c04217195911c3c38abe4a7d69b717955))
+
+
+### Bug Fixes
+
+* paginate list commands instead of returning only the first page ([b3cd218](https://github.com/genz-its/sevdesk/commit/b3cd218a3bb8346a20a724b30515be22ae2c50ef))
+
 ## [0.1.3](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.2...sevdesk-cli-v0.1.3) (2026-08-04)
 
 
