@@ -1,6 +1,6 @@
 {
   "name": "@genz-its/sevdesk-cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Unofficial command-line interface for the sevdesk API.",
   "type": "module",
   "bin": {
