@@ -71,6 +71,7 @@ Built on `@robingenz/zli` + `zod` + `consola`.
 - `GET /CheckAccountTransaction` ignores `isBooked=false`; `transactions:list --unbooked` filters client-side on `status === '100'`. Client-side filters make `fetchAll` request full pages so `--limit` still returns the requested number of rows.
 - `/AccountDatev` is **undocumented**. `list` returns only non-hidden accounts and ignores every filter except `limit`/`offset`; `get` reaches hidden accounts. The documented alternative, `ReceiptGuidanceResource`, only covers the VAT-relevant subset.
 - Payment links between vouchers and transactions are not exposed by any endpoint (`object[]` filter and CSV export both verified). Do not add lookups that pretend otherwise.
+- `PUT` with `mapAll: true` is a genuine partial update: fields left out of the body keep their stored value. Verified live on `/ContactAddress` by updating only `street` and reading `zip`, `city`, `country` and `category` back unchanged, so update commands can send bare partials instead of read-modify-write.
 - `VoucherPos.accountDatev` is `null` for legacy bookkeeping-1.0 positions, which carry `accountingType` instead.
 - Voucher save uses `POST /Voucher/Factory/saveVoucher` with `mapAll: true` and `voucherPosDelete: null`; file uploads go through `POST /Voucher/Factory/uploadTempFile` first.
 

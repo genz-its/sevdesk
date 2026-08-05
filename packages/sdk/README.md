@@ -69,21 +69,23 @@ await sevdesk.vouchers.book({
 
 ### Resources
 
-| Resource                  | Description                                                          |
-| ------------------------- | -------------------------------------------------------------------- |
-| `sevdesk.basics`          | Detect the bookkeeping system version of the account.                |
-| `sevdesk.checkAccounts`   | Manage check accounts and query balances.                            |
-| `sevdesk.contacts`        | Manage contacts and customer numbers.                                |
-| `sevdesk.creditNotes`     | Manage credit notes, send them, and book payments.                   |
-| `sevdesk.exports`         | Run DATEV export jobs and CSV exports.                               |
-| `sevdesk.invoices`        | Manage invoices, render PDFs, send them, and book payments.          |
-| `sevdesk.orders`          | Manage orders and their positions.                                   |
-| `sevdesk.parts`           | Manage parts and query stock.                                        |
-| `sevdesk.receiptGuidance` | Find bookable accounts (`AccountDatev`) and their allowed tax rules. |
-| `sevdesk.reports`         | Generate PDF reports.                                                |
-| `sevdesk.tags`            | Manage tags and tag relations.                                       |
-| `sevdesk.transactions`    | Manage check account transactions.                                   |
-| `sevdesk.vouchers`        | Upload receipts, create and book vouchers.                           |
+| Resource                    | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `sevdesk.basics`            | Detect the bookkeeping system version of the account.                |
+| `sevdesk.checkAccounts`     | Manage check accounts and query balances.                            |
+| `sevdesk.contacts`          | Manage contacts and customer numbers.                                |
+| `sevdesk.contactAddresses`  | Manage the addresses of contacts.                                    |
+| `sevdesk.communicationWays` | Manage the phone numbers and e-mail addresses of contacts.           |
+| `sevdesk.creditNotes`       | Manage credit notes, send them, and book payments.                   |
+| `sevdesk.exports`           | Run DATEV export jobs and CSV exports.                               |
+| `sevdesk.invoices`          | Manage invoices, render PDFs, send them, and book payments.          |
+| `sevdesk.orders`            | Manage orders and their positions.                                   |
+| `sevdesk.parts`             | Manage parts and query stock.                                        |
+| `sevdesk.receiptGuidance`   | Find bookable accounts (`AccountDatev`) and their allowed tax rules. |
+| `sevdesk.reports`           | Generate PDF reports.                                                |
+| `sevdesk.tags`              | Manage tags and tag relations.                                       |
+| `sevdesk.transactions`      | Manage check account transactions.                                   |
+| `sevdesk.vouchers`          | Upload receipts, create and book vouchers.                           |
 
 ### Error handling
 

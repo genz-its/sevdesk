@@ -13,9 +13,11 @@ import contactsAddEmail from './commands/contacts/add-email';
 import contactsAddPhone from './commands/contacts/add-phone';
 import contactsCreate from './commands/contacts/create';
 import contactsDelete from './commands/contacts/delete';
+import contactsDeleteAddress from './commands/contacts/delete-address';
 import contactsGet from './commands/contacts/get';
 import contactsList from './commands/contacts/list';
 import contactsUpdate from './commands/contacts/update';
+import contactsUpdateAddress from './commands/contacts/update-address';
 import creditNotesGet from './commands/credit-notes/get';
 import creditNotesList from './commands/credit-notes/list';
 import creditNotesPdf from './commands/credit-notes/pdf';
@@ -75,9 +77,11 @@ const config = defineConfig({
     'contacts:add-phone': contactsAddPhone,
     'contacts:create': contactsCreate,
     'contacts:delete': contactsDelete,
+    'contacts:delete-address': contactsDeleteAddress,
     'contacts:get': contactsGet,
     'contacts:list': contactsList,
     'contacts:update': contactsUpdate,
+    'contacts:update-address': contactsUpdateAddress,
     'credit-notes:get': creditNotesGet,
     'credit-notes:list': creditNotesList,
     'credit-notes:pdf': creditNotesPdf,

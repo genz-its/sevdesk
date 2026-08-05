@@ -5,9 +5,11 @@ import addEmail from '../src/commands/contacts/add-email';
 import addPhone from '../src/commands/contacts/add-phone';
 import create from '../src/commands/contacts/create';
 import remove from '../src/commands/contacts/delete';
+import removeAddress from '../src/commands/contacts/delete-address';
 import get from '../src/commands/contacts/get';
 import list from '../src/commands/contacts/list';
 import update from '../src/commands/contacts/update';
+import updateAddress from '../src/commands/contacts/update-address';
 
 const contact = {
   id: '42',
@@ -172,7 +174,8 @@ describe('contact commands', () => {
 
     const output = info.mock.calls.flat().join('\n');
     expect(output).toContain('Addresses:');
-    expect(output).toContain('South road 15, 12345 The North, country 1');
+    // The id is part of the line so it can be passed to contacts:update-address.
+    expect(output).toContain('#7 South road 15, 12345 The North, country 1');
     expect(output).toContain('Communication ways:');
     expect(output).toContain('EMAIL: jane@example.com (main)');
   });
@@ -357,6 +360,66 @@ describe('contact commands', () => {
     expect(init.method).toBe('DELETE');
     expect(url.pathname).toBe('/api/v1/Contact/42');
     expect(success).toHaveBeenCalledWith('Contact deleted.');
+  });
+
+  it('updates only the given fields of an address', async () => {
+    respondWith(address);
+    const success = vi.spyOn(consola, 'success').mockImplementation(() => {});
+
+    await updateAddress.action(
+      { id: 7, street: 'North road 1', city: 'Winterfell', json: false },
+      undefined,
+    );
+
+    const { url, init } = lastRequest();
+    expect(init.method).toBe('PUT');
+    expect(url.pathname).toBe('/api/v1/ContactAddress/7');
+    expect(JSON.parse(init.body as string)).toEqual({
+      objectName: 'ContactAddress',
+      mapAll: true,
+      street: 'North road 1',
+      city: 'Winterfell',
+    });
+    expect(success).toHaveBeenCalledWith('Updated contact address 7.');
+  });
+
+  it('exits when updating an address without any field', async () => {
+    const error = vi.spyOn(consola, 'error').mockImplementation(() => {});
+    vi.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as (code?: number) => never);
+
+    await expect(
+      updateAddress.action({ id: 7, json: false }, undefined),
+    ).rejects.toThrow('process.exit(1)');
+    expect(error).toHaveBeenCalledWith(
+      'You must provide at least one of --street, --zip, --city, --country or --category.',
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('deletes an address when confirmed via --yes', async () => {
+    respondWith(null);
+    const success = vi.spyOn(consola, 'success').mockImplementation(() => {});
+
+    await removeAddress.action({ id: 7, yes: true, json: false }, undefined);
+
+    const { url, init } = lastRequest();
+    expect(init.method).toBe('DELETE');
+    expect(url.pathname).toBe('/api/v1/ContactAddress/7');
+    expect(success).toHaveBeenCalledWith('Contact address deleted.');
+  });
+
+  it('exits when deleting an address without --yes in a non-interactive environment', async () => {
+    vi.spyOn(consola, 'error').mockImplementation(() => {});
+    vi.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as (code?: number) => never);
+
+    await expect(
+      removeAddress.action({ id: 7, yes: false, json: false }, undefined),
+    ).rejects.toThrow('process.exit(1)');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('exits when deleting without --yes in a non-interactive environment', async () => {

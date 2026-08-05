@@ -64,13 +64,14 @@ function printSection(title: string, lines: string[]): void {
   }
 }
 
+/** The id is shown because contacts:update-address and contacts:delete-address need it. */
 function formatAddress(address: ContactAddress): string {
   const parts = [
     address.street,
     [address.zip, address.city].filter((part) => part).join(' '),
     `country ${address.country.id}`,
   ];
-  return parts.filter((part) => part).join(', ');
+  return `#${address.id} ${parts.filter((part) => part).join(', ')}`;
 }
 
 function formatCommunicationWay(communicationWay: CommunicationWay): string {

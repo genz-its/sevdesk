@@ -95,9 +95,11 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`contacts:add-phone`](#contactsadd-phone)
 - [`contacts:create`](#contactscreate)
 - [`contacts:delete`](#contactsdelete)
+- [`contacts:delete-address`](#contactsdelete-address)
 - [`contacts:get`](#contactsget)
 - [`contacts:list`](#contactslist)
 - [`contacts:update`](#contactsupdate)
+- [`contacts:update-address`](#contactsupdate-address)
 - [`credit-notes:get`](#credit-notesget)
 - [`credit-notes:list`](#credit-noteslist)
 - [`credit-notes:pdf`](#credit-notespdf)
@@ -346,6 +348,20 @@ sevdesk contacts:delete [options]
 - `--yes`: Skip the confirmation prompt. Defaults to `false`.
 - `--json`: Output in JSON format.
 
+### `contacts:delete-address`
+
+Delete an address of a contact.
+
+```bash
+sevdesk contacts:delete-address [options]
+```
+
+**Options:**
+
+- `--id`: The contact address ID, as shown by [`contacts:get`](#contactsget). If omitted, you will be prompted.
+- `--yes`: Skip the confirmation prompt. Defaults to `false`.
+- `--json`: Output in JSON format.
+
 ### `contacts:get`
 
 Show a single contact with its addresses and communication ways.
@@ -396,6 +412,24 @@ sevdesk contacts:update [options]
 - `--description`: Description of the contact.
 - `--vat-number`: VAT number of the contact.
 - `--tax-number`: Tax number of the contact.
+- `--json`: Output in JSON format.
+
+### `contacts:update-address`
+
+Update an address of a contact. Only the given fields are changed.
+
+```bash
+sevdesk contacts:update-address [options]
+```
+
+**Options:**
+
+- `--id`: The contact address ID, as shown by [`contacts:get`](#contactsget). If omitted, you will be prompted.
+- `--street`: Street and house number.
+- `--zip`: Zip code.
+- `--city`: City name.
+- `--country`: ID of the country as a StaticCountry ID, for example `1` for Germany.
+- `--category`: ID of the address category.
 - `--json`: Output in JSON format.
 
 ### `credit-notes:get`
