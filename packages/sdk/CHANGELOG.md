@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.4...sevdesk-sdk-v0.1.5) (2026-08-05)
+
+
+### Bug Fixes
+
+* derive the booking amount sign from the voucher ([dc68020](https://github.com/genz-its/sevdesk/commit/dc680201eb5f1e1c8eeaf7df0a1b72d863a69847))
+
 ## [0.1.4](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.3...sevdesk-sdk-v0.1.4) (2026-08-05)
 
 
