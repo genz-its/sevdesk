@@ -187,8 +187,8 @@ sevdesk accounts-datev:list [options]
 
 - `--number`: Only show accounts with this account number. Filtered client-side across all visible accounts.
 - `--name-like`: Only show accounts whose name contains this text. Filtered client-side across all visible accounts.
-- `--limit`: Maximum number of accounts to return.
-- `--offset`: Number of accounts to skip. Ignored when a filter is used.
+- `--limit`: Maximum number of accounts to return. Defaults to all of them.
+- `--offset`: Number of accounts to skip before filtering.
 - `--json`: Output in JSON format.
 
 ### `accounts:balance`
@@ -258,7 +258,7 @@ sevdesk accounts:list [options]
 
 **Options:**
 
-- `--limit`: The maximum number of check accounts to return.
+- `--limit`: The maximum number of check accounts to return. Defaults to all of them.
 - `--offset`: The number of check accounts to skip.
 - `--json`: Output in JSON format.
 
@@ -373,7 +373,7 @@ sevdesk contacts:list [options]
 - `--customer-number`: Filter by customer number.
 - `--depth`: Contact depth: `0` returns only organizations, `1` organizations and persons. Defaults to `0`.
 - `--category`: ID of the contact category to filter by: `2` supplier, `3` customer, `4` partner.
-- `--limit`: Maximum number of contacts to return.
+- `--limit`: Maximum number of contacts to return. Defaults to all of them.
 - `--offset`: Number of contacts to skip.
 - `--json`: Output in JSON format.
 
@@ -426,7 +426,7 @@ sevdesk credit-notes:list [options]
 - `--start-date`: Only credit notes on or after this date as `dd.mm.yyyy` or Unix timestamp.
 - `--end-date`: Only credit notes on or before this date as `dd.mm.yyyy` or Unix timestamp.
 - `--contact`: ID of the contact whose credit notes to list.
-- `--limit`: Maximum number of credit notes to return.
+- `--limit`: Maximum number of credit notes to return. Defaults to all of them.
 - `--offset`: Number of credit notes to skip.
 - `--json`: Output in JSON format.
 
@@ -569,7 +569,7 @@ sevdesk invoices:list [options]
 - `--start-date`: Only invoices on or after this date as `dd.mm.yyyy` or Unix timestamp.
 - `--end-date`: Only invoices on or before this date as `dd.mm.yyyy` or Unix timestamp.
 - `--contact`: ID of the contact whose invoices to list.
-- `--limit`: Maximum number of invoices to return.
+- `--limit`: Maximum number of invoices to return. Defaults to all of them.
 - `--offset`: Number of invoices to skip.
 - `--json`: Output in JSON format.
 
@@ -616,7 +616,7 @@ sevdesk orders:list [options]
 - `--start-date`: Only orders on or after this date as `dd.mm.yyyy` or Unix timestamp.
 - `--end-date`: Only orders on or before this date as `dd.mm.yyyy` or Unix timestamp.
 - `--contact`: ID of the contact whose orders to list.
-- `--limit`: Maximum number of orders to return.
+- `--limit`: Maximum number of orders to return. Defaults to all of them.
 - `--offset`: Number of orders to skip.
 - `--json`: Output in JSON format.
 
@@ -660,7 +660,7 @@ sevdesk parts:list [options]
 
 - `--name`: Filter by part name.
 - `--part-number`: Filter by part number.
-- `--limit`: Maximum number of parts to return.
+- `--limit`: Maximum number of parts to return. Defaults to all of them.
 - `--offset`: Number of parts to skip.
 - `--json`: Output in JSON format.
 
@@ -703,7 +703,7 @@ sevdesk tags:list [options]
 
 **Options:**
 
-- `--limit`: Maximum number of tags to return.
+- `--limit`: Maximum number of tags to return. Defaults to all of them.
 - `--offset`: Number of tags to skip.
 - `--json`: Output in JSON format.
 
@@ -750,12 +750,12 @@ sevdesk transactions:list [options]
 **Options:**
 
 - `--check-account`: Only show transactions of this check account ID.
-- `--unbooked`: Only show transactions with status `100` (created). Filtered client-side because the sevdesk API ignores its `isBooked=false` filter, so a page fetched with `--limit` may yield fewer rows. Defaults to `false`.
+- `--unbooked`: Only show transactions with status `100` (created). Filtered client-side because the sevdesk API ignores its `isBooked=false` filter. Defaults to `false`.
 - `--start-date`: Only show transactions on or after this date (ISO 8601).
 - `--end-date`: Only show transactions on or before this date (ISO 8601).
 - `--payee`: Only show transactions with this payee or payer name.
 - `--purpose`: Only show transactions with this payment purpose.
-- `--limit`: The maximum number of transactions to return.
+- `--limit`: The maximum number of transactions to return. Defaults to all of them.
 - `--offset`: The number of transactions to skip.
 - `--json`: Output in JSON format.
 
@@ -848,7 +848,7 @@ sevdesk vouchers:list [options]
 - `--start-date`: Only vouchers on or after this date as `dd.mm.yyyy` or Unix timestamp.
 - `--end-date`: Only vouchers on or before this date as `dd.mm.yyyy` or Unix timestamp.
 - `--contact`: ID of the contact whose vouchers to list.
-- `--limit`: Maximum number of vouchers to return.
+- `--limit`: Maximum number of vouchers to return. Defaults to all of them.
 - `--offset`: Number of vouchers to skip.
 - `--json`: Output in JSON format.
 
@@ -863,7 +863,7 @@ sevdesk vouchers:positions [options]
 **Options:**
 
 - `--voucher`: ID of the voucher whose positions to list.
-- `--limit`: Maximum number of positions to return.
+- `--limit`: Maximum number of positions to return. Defaults to all of them.
 - `--offset`: Number of positions to skip.
 - `--json`: Output in JSON format.
 

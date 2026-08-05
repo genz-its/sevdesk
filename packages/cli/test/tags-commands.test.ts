@@ -21,12 +21,25 @@ const tagRelation = {
 
 const fetchMock = vi.fn();
 
+function jsonResponse(objects: unknown): Response {
+  return new Response(JSON.stringify({ objects }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+/** Serves one page followed by empty ones, so paginated commands terminate. */
 function respondWith(objects: unknown): void {
-  fetchMock.mockResolvedValue(
-    new Response(JSON.stringify({ objects }), {
-      headers: { 'Content-Type': 'application/json' },
-    }),
-  );
+  fetchMock
+    .mockResolvedValueOnce(jsonResponse(objects))
+    .mockImplementation(async () => jsonResponse([]));
+}
+
+function firstRequest(): { url: URL; init: RequestInit } {
+  const call = fetchMock.mock.calls[0];
+  if (!call) {
+    throw new Error('No fetch call recorded.');
+  }
+  return { url: new URL(call[0] as string), init: call[1] as RequestInit };
 }
 
 function lastRequest(): { url: URL; init: RequestInit } {
@@ -56,7 +69,7 @@ describe('tag commands', () => {
 
     await list.action({ limit: 20, json: false }, undefined);
 
-    const { url, init } = lastRequest();
+    const { url, init } = firstRequest();
     expect(init.method).toBe('GET');
     expect(url.pathname).toBe('/api/v1/Tag');
     expect(url.searchParams.get('limit')).toBe('20');

@@ -4,6 +4,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { contactLabel, printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List invoices.',
@@ -38,7 +39,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of invoices to return.'),
+        .describe(
+          'Maximum number of invoices to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -48,16 +51,19 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const invoices = await client.invoices.list({
-      status: options.status as InvoiceStatus | undefined,
-      invoiceNumber: options.invoiceNumber,
-      startDate: options.startDate,
-      endDate: options.endDate,
-      contactId: options.contact,
-      limit: options.limit,
-      offset: options.offset,
-      embed: ['contact'],
-    });
+    const invoices = await fetchAll(
+      (page) =>
+        client.invoices.list({
+          status: options.status as InvoiceStatus | undefined,
+          invoiceNumber: options.invoiceNumber,
+          startDate: options.startDate,
+          endDate: options.endDate,
+          contactId: options.contact,
+          embed: ['contact'],
+          ...page,
+        }),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(invoices);
       return;

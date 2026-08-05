@@ -3,6 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List parts.',
@@ -13,19 +14,24 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of parts to return.'),
+        .describe(
+          'Maximum number of parts to return. Defaults to all of them.',
+        ),
       offset: z.coerce.number().optional().describe('Number of parts to skip.'),
       json: z.boolean().default(false).describe('Output in JSON format.'),
     }),
   ),
   action: async (options) => {
     const client = await requireClient();
-    const parts = await client.parts.list({
-      name: options.name,
-      partNumber: options.partNumber,
-      limit: options.limit,
-      offset: options.offset,
-    });
+    const parts = await fetchAll(
+      (page) =>
+        client.parts.list({
+          name: options.name,
+          partNumber: options.partNumber,
+          ...page,
+        }),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(parts);
       return;

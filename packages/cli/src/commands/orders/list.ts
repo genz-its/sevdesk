@@ -4,6 +4,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { contactLabel, printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List orders.',
@@ -35,7 +36,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of orders to return.'),
+        .describe(
+          'Maximum number of orders to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -45,16 +48,19 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const orders = await client.orders.list({
-      status: options.status as OrderStatus | undefined,
-      orderNumber: options.orderNumber,
-      startDate: options.startDate,
-      endDate: options.endDate,
-      contactId: options.contact,
-      limit: options.limit,
-      offset: options.offset,
-      embed: ['contact'],
-    });
+    const orders = await fetchAll(
+      (page) =>
+        client.orders.list({
+          status: options.status as OrderStatus | undefined,
+          orderNumber: options.orderNumber,
+          startDate: options.startDate,
+          endDate: options.endDate,
+          contactId: options.contact,
+          embed: ['contact'],
+          ...page,
+        }),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(orders);
       return;

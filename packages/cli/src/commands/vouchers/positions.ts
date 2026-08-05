@@ -4,6 +4,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 /**
  * The booking account of a position. The number and name fields are only
@@ -27,7 +28,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of positions to return.'),
+        .describe(
+          'Maximum number of positions to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -37,12 +40,15 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const positions = await client.vouchers.listPositions({
-      voucherId: options.voucher,
-      limit: options.limit,
-      offset: options.offset,
-      embed: ['accountDatev'],
-    });
+    const positions = await fetchAll(
+      (page) =>
+        client.vouchers.listPositions({
+          voucherId: options.voucher,
+          embed: ['accountDatev'],
+          ...page,
+        }),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(positions);
       return;

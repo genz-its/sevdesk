@@ -3,6 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List transactions of your check accounts.',
@@ -16,7 +17,7 @@ export default defineCommand({
         .boolean()
         .default(false)
         .describe(
-          'Only show transactions with status 100 (created). Filtered client-side because the sevdesk API ignores its isBooked=false filter, so a page fetched with --limit may yield fewer rows.',
+          'Only show transactions with status 100 (created). Filtered client-side because the sevdesk API ignores its isBooked=false filter.',
         ),
       startDate: z
         .string()
@@ -37,7 +38,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('The maximum number of transactions to return.'),
+        .describe(
+          'The maximum number of transactions to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -47,20 +50,24 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    let transactions = await client.transactions.list({
-      checkAccountId: options.checkAccount,
-      startDate: options.startDate,
-      endDate: options.endDate,
-      payeePayerName: options.payee,
-      paymtPurpose: options.purpose,
-      limit: options.limit,
-      offset: options.offset,
-    });
-    if (options.unbooked) {
-      transactions = transactions.filter(
-        (transaction) => transaction.status === '100',
-      );
-    }
+    const transactions = await fetchAll(
+      (page) =>
+        client.transactions.list({
+          checkAccountId: options.checkAccount,
+          startDate: options.startDate,
+          endDate: options.endDate,
+          payeePayerName: options.payee,
+          paymtPurpose: options.purpose,
+          ...page,
+        }),
+      {
+        limit: options.limit,
+        offset: options.offset,
+        keep: options.unbooked
+          ? (transaction) => transaction.status === '100'
+          : undefined,
+      },
+    );
     if (options.json) {
       printJson(transactions);
       return;

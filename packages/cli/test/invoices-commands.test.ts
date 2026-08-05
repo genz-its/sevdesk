@@ -38,7 +38,7 @@ function jsonResponse(payload?: unknown): Response {
 function stubFetch(...payloads: unknown[]) {
   const responses = payloads.map((payload) => jsonResponse(payload));
   const fetchMock = vi.fn<typeof globalThis.fetch>(
-    async () => responses.shift() ?? jsonResponse(),
+    async () => responses.shift() ?? jsonResponse({ objects: [] }),
   );
   vi.stubGlobal('fetch', fetchMock);
   return fetchMock;

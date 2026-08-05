@@ -4,6 +4,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { contactLabel, printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List vouchers.',
@@ -42,7 +43,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of vouchers to return.'),
+        .describe(
+          'Maximum number of vouchers to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -52,17 +55,20 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const vouchers = await client.vouchers.list({
-      status: options.status as VoucherStatus | undefined,
-      creditDebit: options.creditDebit,
-      descriptionLike: options.descriptionLike,
-      startDate: options.startDate,
-      endDate: options.endDate,
-      contactId: options.contact,
-      limit: options.limit,
-      offset: options.offset,
-      embed: ['supplier'],
-    });
+    const vouchers = await fetchAll(
+      (page) =>
+        client.vouchers.list({
+          status: options.status as VoucherStatus | undefined,
+          creditDebit: options.creditDebit,
+          descriptionLike: options.descriptionLike,
+          startDate: options.startDate,
+          endDate: options.endDate,
+          contactId: options.contact,
+          embed: ['supplier'],
+          ...page,
+        }),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(vouchers);
       return;

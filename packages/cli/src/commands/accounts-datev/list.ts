@@ -1,11 +1,9 @@
-import type { AccountDatev } from '@genz-its/sevdesk-sdk';
 import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { printJson, printTable } from '../../output';
-
-const PAGE_SIZE = 1000;
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description:
@@ -27,51 +25,31 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('Maximum number of accounts to return.'),
+        .describe(
+          'Maximum number of accounts to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
-        .describe('Number of accounts to skip. Ignored when a filter is used.'),
+        .describe('Number of accounts to skip before filtering.'),
       json: z.boolean().default(false).describe('Output in JSON format.'),
     }),
   ),
   action: async (options) => {
     const client = await requireClient();
-    const filtering =
-      options.number !== undefined || options.nameLike !== undefined;
-    let accounts: AccountDatev[];
-    if (filtering) {
-      accounts = [];
-      for (let offset = 0; ; offset += PAGE_SIZE) {
-        const page = await client.accountsDatev.list({
-          limit: PAGE_SIZE,
-          offset,
-        });
-        accounts.push(...page);
-        if (page.length < PAGE_SIZE) {
-          break;
-        }
-      }
-      if (options.number !== undefined) {
-        accounts = accounts.filter(
-          (account) => account.number === options.number,
-        );
-      }
-      if (options.nameLike !== undefined) {
-        const needle = options.nameLike.toLowerCase();
-        accounts = accounts.filter((account) =>
-          (account.name ?? '').toLowerCase().includes(needle),
-        );
-      }
-      if (options.limit !== undefined) {
-        accounts = accounts.slice(0, options.limit);
-      }
-    } else {
-      accounts = await client.accountsDatev.list({
-        limit: options.limit,
-        offset: options.offset,
-      });
-    }
+    const needle = options.nameLike?.toLowerCase();
+    const filtering = options.number !== undefined || needle !== undefined;
+    const accounts = await fetchAll((page) => client.accountsDatev.list(page), {
+      limit: options.limit,
+      offset: options.offset,
+      keep: filtering
+        ? (account) =>
+            (options.number === undefined ||
+              account.number === options.number) &&
+            (needle === undefined ||
+              (account.name ?? '').toLowerCase().includes(needle))
+        : undefined,
+    });
     if (options.json) {
       printJson(accounts);
       return;

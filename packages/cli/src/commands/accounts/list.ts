@@ -3,6 +3,7 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { requireClient } from '../../client';
 import { printJson, printTable } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'List your check accounts.',
@@ -11,7 +12,9 @@ export default defineCommand({
       limit: z.coerce
         .number()
         .optional()
-        .describe('The maximum number of check accounts to return.'),
+        .describe(
+          'The maximum number of check accounts to return. Defaults to all of them.',
+        ),
       offset: z.coerce
         .number()
         .optional()
@@ -21,10 +24,10 @@ export default defineCommand({
   ),
   action: async (options) => {
     const client = await requireClient();
-    const checkAccounts = await client.checkAccounts.list({
-      limit: options.limit,
-      offset: options.offset,
-    });
+    const checkAccounts = await fetchAll(
+      (page) => client.checkAccounts.list(page),
+      { limit: options.limit, offset: options.offset },
+    );
     if (options.json) {
       printJson(checkAccounts);
       return;

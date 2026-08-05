@@ -67,7 +67,8 @@ Built on `@robingenz/zli` + `zod` + `consola`.
 
 ## API quirks to preserve
 
-- `GET /CheckAccountTransaction` ignores `isBooked=false`; `transactions:list --unbooked` filters client-side on `status === '100'` (so `--limit` may yield fewer rows).
+- List endpoints default to `limit=100` when no limit is sent, which silently truncates. CLI list commands therefore page through `fetchAll` (`packages/cli/src/pagination.ts`) instead of issuing a single request; it stops on an empty page, not a short one, so a server-side cap cannot truncate either. SDK `list` methods stay 1:1 with the endpoint and do not paginate.
+- `GET /CheckAccountTransaction` ignores `isBooked=false`; `transactions:list --unbooked` filters client-side on `status === '100'`. Client-side filters make `fetchAll` request full pages so `--limit` still returns the requested number of rows.
 - `/AccountDatev` is **undocumented**. `list` returns only non-hidden accounts and ignores every filter except `limit`/`offset`; `get` reaches hidden accounts. The documented alternative, `ReceiptGuidanceResource`, only covers the VAT-relevant subset.
 - Payment links between vouchers and transactions are not exposed by any endpoint (`object[]` filter and CSV export both verified). Do not add lookups that pretend otherwise.
 - `VoucherPos.accountDatev` is `null` for legacy bookkeeping-1.0 positions, which carry `accountingType` instead.
@@ -76,6 +77,8 @@ Built on `@robingenz/zli` + `zod` + `consola`.
 ## Testing
 
 Vitest, no network. SDK tests build a resource on an `HttpClient` with a mocked `fetch` (`test/helpers.ts`: `createMockFetch`, `createHttpClient`, `lastRequest`) and assert on the exact request URL and JSON body. CLI tests import the command module directly, `vi.stubGlobal('fetch', …)`, mock `../src/interactive` and `../src/prompt`, and assert on requests plus `process.exit` behavior. Add tests alongside every new resource method and command.
+
+**Fixtures are always invented, never real.** Never paste a live API response into a test, a doc or a commit — no real ids, names, IBANs, amounts, purposes or account numbers from an actual sevdesk account. Make fixtures obviously fake (`ACME`, `RE-1`, published test IBANs) and keep any live output you capture while debugging outside the repo.
 
 ## Releases
 

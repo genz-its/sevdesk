@@ -5,9 +5,7 @@ import { z } from 'zod';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
 import { printJson } from '../../output';
-
-/** The `/ContactAddress` endpoint cannot filter by contact, so we filter here. */
-const ADDRESS_LOOKUP_LIMIT = 100;
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description:
@@ -29,15 +27,14 @@ export default defineCommand({
       question: 'Enter the contact ID:',
     });
     const contact = await client.contacts.get({ contactId });
-    const allAddresses = await client.contactAddresses.list({
-      limit: ADDRESS_LOOKUP_LIMIT,
-    });
-    const addresses = allAddresses.filter(
-      (address) => address.contact.id === String(contactId),
+    /** The `/ContactAddress` endpoint cannot filter by contact, so we filter here. */
+    const addresses = await fetchAll(
+      (page) => client.contactAddresses.list(page),
+      { keep: (address) => address.contact.id === String(contactId) },
     );
-    const communicationWays = await client.communicationWays.list({
-      contactId,
-    });
+    const communicationWays = await fetchAll((page) =>
+      client.communicationWays.list({ contactId, ...page }),
+    );
     if (options.json) {
       printJson({ contact, addresses, communicationWays });
       return;

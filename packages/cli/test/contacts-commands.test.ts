@@ -52,14 +52,19 @@ function jsonResponse(objects: unknown): Response {
   });
 }
 
+/** Serves one page followed by empty ones, so paginated commands terminate. */
 function respondWith(objects: unknown): void {
-  fetchMock.mockResolvedValue(jsonResponse(objects));
+  fetchMock
+    .mockResolvedValueOnce(jsonResponse(objects))
+    .mockImplementation(async () => jsonResponse([]));
 }
 
+/** Serves one response per value in request order, then empty pages. */
 function respondWithEach(...objects: unknown[]): void {
   for (const value of objects) {
     fetchMock.mockResolvedValueOnce(jsonResponse(value));
   }
+  fetchMock.mockImplementation(async () => jsonResponse([]));
 }
 
 function requestAt(index: number): { url: URL; init: RequestInit } {
@@ -96,7 +101,7 @@ describe('contact commands', () => {
       undefined,
     );
 
-    const { url, init } = lastRequest();
+    const { url, init } = requestAt(0);
     expect(init.method).toBe('GET');
     expect(url.pathname).toBe('/api/v1/Contact');
     expect(url.searchParams.get('name')).toBe('Doe');
@@ -130,6 +135,7 @@ describe('contact commands', () => {
     respondWithEach(
       [contact],
       [address, { ...address, id: '8', contact: { id: '43' } }],
+      [],
       [communicationWay],
     );
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -139,8 +145,9 @@ describe('contact commands', () => {
     expect(requestAt(0).url.pathname).toBe('/api/v1/Contact/42');
     const addressRequest = requestAt(1);
     expect(addressRequest.url.pathname).toBe('/api/v1/ContactAddress');
-    expect(addressRequest.url.searchParams.get('limit')).toBe('100');
-    const communicationWayRequest = requestAt(2);
+    expect(addressRequest.url.searchParams.get('offset')).toBe('0');
+    expect(requestAt(2).url.searchParams.get('offset')).toBe('2');
+    const communicationWayRequest = requestAt(3);
     expect(communicationWayRequest.url.pathname).toBe(
       '/api/v1/CommunicationWay',
     );
@@ -158,7 +165,7 @@ describe('contact commands', () => {
   });
 
   it('prints the address and communication way sections of a contact', async () => {
-    respondWithEach([contact], [address], [communicationWay]);
+    respondWithEach([contact], [address], [], [communicationWay]);
     const info = vi.spyOn(consola, 'info').mockImplementation(() => {});
 
     await get.action({ id: 42, json: false }, undefined);

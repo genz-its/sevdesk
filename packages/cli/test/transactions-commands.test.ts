@@ -18,12 +18,25 @@ const transaction = {
 
 const fetchMock = vi.fn();
 
+function jsonResponse(objects: unknown): Response {
+  return new Response(JSON.stringify({ objects }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+/** Serves one page followed by empty ones, so paginated commands terminate. */
 function respondWith(objects: unknown): void {
-  fetchMock.mockResolvedValue(
-    new Response(JSON.stringify({ objects }), {
-      headers: { 'Content-Type': 'application/json' },
-    }),
-  );
+  fetchMock
+    .mockResolvedValueOnce(jsonResponse(objects))
+    .mockImplementation(async () => jsonResponse([]));
+}
+
+function firstRequest(): { url: URL; init: RequestInit } {
+  const call = fetchMock.mock.calls[0];
+  if (!call) {
+    throw new Error('No fetch call recorded.');
+  }
+  return { url: new URL(call[0] as string), init: call[1] as RequestInit };
 }
 
 function lastRequest(): { url: URL; init: RequestInit } {
@@ -65,7 +78,7 @@ describe('transaction commands', () => {
       undefined,
     );
 
-    const { url, init } = lastRequest();
+    const { url, init } = firstRequest();
     expect(init.method).toBe('GET');
     expect(url.pathname).toBe('/api/v1/CheckAccountTransaction');
     expect(url.searchParams.get('checkAccount[id]')).toBe('1');
@@ -74,10 +87,30 @@ describe('transaction commands', () => {
     );
     expect(url.searchParams.has('isBooked')).toBe(false);
     expect(url.searchParams.get('payeePayerName')).toBe('ACME');
-    expect(url.searchParams.get('limit')).toBe('10');
+    // Client-side filtering needs full pages, so --limit must not cap the request.
+    expect(Number(url.searchParams.get('limit'))).toBeGreaterThan(10);
     const output = log.mock.calls.flat().join('\n');
     expect(output).toContain('ACME');
     expect(output).not.toContain('BOOKED CORP');
+  });
+
+  it('collects unbooked transactions beyond the first page', async () => {
+    const page = (from: number, count: number) =>
+      Array.from({ length: count }, (_, index) => ({
+        ...transaction,
+        id: String(from + index),
+        payeePayerName: `PAYEE ${from + index}`,
+      }));
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(page(0, 1000)))
+      .mockResolvedValueOnce(jsonResponse(page(1000, 156)))
+      .mockImplementation(async () => jsonResponse([]));
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await list.action({ unbooked: true, json: true }, undefined);
+
+    expect(JSON.parse(log.mock.calls[0]?.[0] as string)).toHaveLength(1156);
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(1);
   });
 
   it('keeps booked transactions when unbooked is not set', async () => {
