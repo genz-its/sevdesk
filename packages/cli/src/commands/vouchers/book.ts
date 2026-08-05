@@ -13,7 +13,9 @@ export default defineCommand({
       amount: z.coerce
         .number()
         .optional()
-        .describe('Amount to book. Can also be a partial amount.'),
+        .describe(
+          'Amount to book. Can also be a partial amount. The sign is derived from the voucher, so pass the amount as a positive number.',
+        ),
       date: z
         .string()
         .default(() => new Date().toISOString())
@@ -66,9 +68,11 @@ export default defineCommand({
     if (!confirmed) {
       return;
     }
+    const voucher = await client.vouchers.get({ voucherId });
     const result = await client.vouchers.book({
       voucherId,
-      amount,
+      amount:
+        voucher.creditDebit === 'C' ? -Math.abs(amount) : Math.abs(amount),
       date: options.date,
       type: options.type,
       checkAccountId,

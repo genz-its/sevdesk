@@ -804,7 +804,7 @@ sevdesk vouchers:book [options]
 **Options:**
 
 - `--id`: ID of the voucher. If omitted, you will be prompted.
-- `--amount`: Amount to book. Can also be a partial amount. If omitted, you will be prompted.
+- `--amount`: Amount to book. Can also be a partial amount. Pass it as a positive number — the sign is derived from the voucher, which the API requires to be negative for expense vouchers. If omitted, you will be prompted.
 - `--date`: Booking date as ISO 8601. Defaults to now.
 - `--type`: Type of the booking. Supported values are `FULL_PAYMENT`, `N` (partial), `CB` (cash discount), `O` (other), `OF` (reminder charges) and `MTC` (monetary traffic costs). Defaults to `FULL_PAYMENT`.
 - `--check-account`: ID of the check account. If omitted, you will be prompted.

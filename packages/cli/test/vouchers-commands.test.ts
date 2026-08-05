@@ -493,10 +493,11 @@ describe('voucher commands', () => {
   });
 
   describe('book', () => {
-    it('books the amount with --yes', async () => {
-      const fetchMock = stubFetch({
-        objects: { fromStatus: '100', toStatus: '1000' },
-      });
+    it('books a negative amount on an expense voucher with --yes', async () => {
+      const fetchMock = stubFetch(
+        { objects: [{ ...voucher, creditDebit: 'C' }] },
+        { objects: { fromStatus: '100', toStatus: '1000' } },
+      );
       await bookCommand.action(
         {
           id: 42,
@@ -510,11 +511,12 @@ describe('voucher commands', () => {
         },
         undefined,
       );
-      const { url, init } = requestAt(fetchMock, 0);
+      expect(requestAt(fetchMock, 0).url).toContain('/Voucher/42');
+      const { url, init } = requestAt(fetchMock, 1);
       expect(url).toContain('/Voucher/42/bookAmount');
       expect(init.method).toBe('PUT');
       expect(JSON.parse(init.body as string)).toMatchObject({
-        amount: 119,
+        amount: -119,
         date: '2024-02-01T00:00:00.000Z',
         type: 'FULL_PAYMENT',
         checkAccount: { id: 3, objectName: 'CheckAccount' },
@@ -526,6 +528,50 @@ describe('voucher commands', () => {
       expect(consola.success).toHaveBeenCalledWith(
         'Booked 119 on voucher 42. Status changed from 100 to 1000.',
       );
+    });
+
+    it('books a positive amount on a revenue voucher', async () => {
+      const fetchMock = stubFetch(
+        { objects: [{ ...voucher, creditDebit: 'D' }] },
+        { objects: { fromStatus: '100', toStatus: '1000' } },
+      );
+      await bookCommand.action(
+        {
+          id: 42,
+          amount: 119,
+          date: '2024-02-01T00:00:00.000Z',
+          type: 'FULL_PAYMENT',
+          checkAccount: 3,
+          yes: true,
+          json: false,
+        },
+        undefined,
+      );
+      expect(
+        JSON.parse(requestAt(fetchMock, 1).init.body as string),
+      ).toMatchObject({ amount: 119 });
+    });
+
+    it('normalizes a negative amount to the sign of the voucher', async () => {
+      const fetchMock = stubFetch(
+        { objects: [{ ...voucher, creditDebit: 'C' }] },
+        { objects: { fromStatus: '100', toStatus: '1000' } },
+      );
+      await bookCommand.action(
+        {
+          id: 42,
+          amount: -119,
+          date: '2024-02-01T00:00:00.000Z',
+          type: 'FULL_PAYMENT',
+          checkAccount: 3,
+          yes: true,
+          json: false,
+        },
+        undefined,
+      );
+      expect(
+        JSON.parse(requestAt(fetchMock, 1).init.body as string),
+      ).toMatchObject({ amount: -119 });
     });
 
     it('aborts when the confirmation is declined', async () => {

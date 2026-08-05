@@ -46,10 +46,11 @@ const { voucher } = await sevdesk.vouchers.createFromFile({
 // Find unbooked bank transactions
 const transactions = await sevdesk.transactions.list({ isBooked: false });
 
-// Book the voucher against a transaction
+// Book the voucher against a transaction. The amount flows over the check
+// account, so it is negative for expense vouchers.
 await sevdesk.vouchers.book({
   voucherId: Number(voucher.id),
-  amount: 119,
+  amount: -119,
   date: new Date(),
   type: 'FULL_PAYMENT',
   checkAccountId: 1,

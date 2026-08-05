@@ -74,6 +74,7 @@ Built on `@robingenz/zli` + `zod` + `consola`.
 - `PUT` with `mapAll: true` is a genuine partial update: fields left out of the body keep their stored value. Verified live on `/ContactAddress` by updating only `street` and reading `zip`, `city`, `country` and `category` back unchanged, so update commands can send bare partials instead of read-modify-write.
 - `VoucherPos.accountDatev` is `null` for legacy bookkeeping-1.0 positions, which carry `accountingType` instead.
 - Voucher save uses `POST /Voucher/Factory/saveVoucher` with `mapAll: true` and `voucherPosDelete: null`; file uploads go through `POST /Voucher/Factory/uploadTempFile` first.
+- `bookAmount` takes the amount **as it flows over the check account**: negative for expense vouchers (`creditDebit: 'C'`), positive for revenue vouchers. A positive amount on an expense voucher is accepted and stored as a negative `paidAmount`, leaving the voucher at status `750` with `payDate: null` — silently wrong, no error. The SDK stays 1:1 and expects the signed amount; `vouchers:book` takes a positive `--amount` and applies the sign from the voucher it fetches first.
 
 ## Testing
 

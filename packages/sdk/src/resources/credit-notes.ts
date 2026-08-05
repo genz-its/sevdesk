@@ -137,7 +137,12 @@ export interface SendCreditNoteByOptions {
 
 export interface BookCreditNoteOptions {
   creditNoteId: number;
-  /** Can also be a partial amount. */
+  /**
+   * Can also be a partial amount. sevdesk reads this as the amount flowing over
+   * the check account and derives the stored `paidAmount` from it. A wrongly
+   * signed amount is accepted without an error and leaves the document
+   * partially paid, so verify the resulting `paidAmount`.
+   */
   amount: number;
   date: DateInput;
   type: CreditNoteBookingType;

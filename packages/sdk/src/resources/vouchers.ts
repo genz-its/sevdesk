@@ -88,7 +88,13 @@ export interface UpdateVoucherOptions {
 
 export interface BookVoucherOptions {
   voucherId: number;
-  /** Can also be a partial amount. */
+  /**
+   * Can also be a partial amount. This is the amount as it flows over the check
+   * account, so it must be negative for expense vouchers (`creditDebit: 'C'`)
+   * and positive for revenue vouchers (`creditDebit: 'D'`). A positive amount on
+   * an expense voucher is stored as a negative `paidAmount`, which leaves the
+   * voucher partially paid instead of paid.
+   */
   amount: number;
   date: DateInput;
   type: VoucherBookingType;
