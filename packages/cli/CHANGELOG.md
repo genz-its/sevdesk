@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.6](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.5...sevdesk-cli-v0.1.6) (2026-08-05)
+
+
+### Bug Fixes
+
+* derive the booking amount sign from the voucher ([dc68020](https://github.com/genz-its/sevdesk/commit/dc680201eb5f1e1c8eeaf7df0a1b72d863a69847))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @genz-its/sevdesk-sdk bumped from 0.1.4 to 0.1.5
+
 ## [0.1.5](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.4...sevdesk-cli-v0.1.5) (2026-08-05)
 
 
