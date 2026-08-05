@@ -1,6 +1,6 @@
 {
   "name": "@genz-its/sevdesk-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Unofficial command-line interface for the sevdesk API.",
   "type": "module",
   "bin": {
@@ -16,7 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@genz-its/sevdesk-sdk": "0.1.3",
+    "@genz-its/sevdesk-sdk": "0.1.4",
     "@robingenz/zli": "0.2.0",
     "consola": "3.4.2",
     "zod": "4.4.3"

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.5](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.4...sevdesk-cli-v0.1.5) (2026-08-05)
+
+
+### Features
+
+* add contacts:update-address and contacts:delete-address ([c5f1117](https://github.com/genz-its/sevdesk/commit/c5f111752c2060994b997c044f7a32580879d372))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @genz-its/sevdesk-sdk bumped from 0.1.3 to 0.1.4
+
 ## [0.1.4](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.3...sevdesk-cli-v0.1.4) (2026-08-05)
 
 
