@@ -1,12 +1,12 @@
 import { SevDeskError } from '@genz-its/sevdesk-sdk';
-import { ZliError } from '@robingenz/zli';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { ZodlineError } from 'zodline';
 import { formatError } from '../src/errors';
 
 describe('formatError', () => {
-  it('passes ZliError messages through', () => {
-    expect(formatError(new ZliError('Unknown command: foo'))).toBe(
+  it('passes ZodlineError messages through', () => {
+    expect(formatError(new ZodlineError('Unknown command: foo'))).toBe(
       'Unknown command: foo',
     );
   });

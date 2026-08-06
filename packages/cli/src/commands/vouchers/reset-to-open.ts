@@ -1,6 +1,6 @@
-import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
+import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
 import { confirmOrAbort, requireNumberOption } from '../../options';
 import { printJson } from '../../output';

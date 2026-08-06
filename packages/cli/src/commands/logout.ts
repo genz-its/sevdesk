@@ -1,5 +1,5 @@
-import { defineCommand } from '@robingenz/zli';
 import { consola } from 'consola';
+import { defineCommand } from 'zodline';
 import { readConfig, writeConfig } from '../config';
 
 export default defineCommand({

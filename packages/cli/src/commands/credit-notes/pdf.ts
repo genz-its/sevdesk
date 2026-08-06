@@ -1,8 +1,8 @@
-import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { z } from 'zod';
+import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
 import { printJson } from '../../output';

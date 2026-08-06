@@ -44,7 +44,7 @@ Zero runtime dependencies, native `fetch`, ESM only.
 
 ### `packages/cli` — `@genz-its/sevdesk-cli` (bin `sevdesk`)
 
-Built on `@robingenz/zli` + `zod` + `consola`.
+Built on `zodline` + `zod` + `consola`.
 
 - `src/index.ts` — registers every command in a flat `commands` map keyed `group:action` (e.g. `vouchers:book`). New commands must be imported and registered here. Top-level try/catch funnels all errors through `formatError`, then sets exit code 1.
 - `src/commands/<group>/<action>.ts` — one `defineCommand({ description, options: defineOptions(z.object({…})), action })` per file, default-exported.
@@ -52,7 +52,7 @@ Built on `@robingenz/zli` + `zod` + `consola`.
 - `src/config.ts` — token resolution order: `SEVDESK_TOKEN` env var → `~/.config/sevdesk/config.json` (respects `XDG_CONFIG_HOME`, written with mode `0600`). No OS keyring.
 - `src/options.ts` / `src/prompt.ts` / `src/interactive.ts` — `requireStringOption`/`requireNumberOption`/`confirmOrAbort` prompt when interactive and exit 1 with an explanatory message when not. Non-interactive = no TTY or `CI` set.
 - `src/output.ts` — `printJson`, `printTable`, `contactLabel`.
-- `src/errors.ts` — maps `ZliError`, `ZodError` and `SevDeskError` (401 → "run `sevdesk login`") to user-facing strings.
+- `src/errors.ts` — maps `ZodlineError`, `ZodError` and `SevDeskError` (401 → "run `sevdesk login`") to user-facing strings.
 
 ## Conventions
 
