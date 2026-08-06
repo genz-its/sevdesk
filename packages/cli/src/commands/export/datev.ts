@@ -1,9 +1,9 @@
 import type { ExportJobDownloadInfo, SevDesk } from '@genz-its/sevdesk-sdk';
 import { SevDeskError } from '@genz-its/sevdesk-sdk';
-import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { writeFile } from 'node:fs/promises';
 import { z } from 'zod';
+import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
 import { requireStringOption } from '../../options';
 import { printJson } from '../../output';

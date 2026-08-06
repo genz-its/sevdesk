@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { defineConfig, processConfig } from '@robingenz/zli';
 import { consola } from 'consola';
+import { defineConfig, processConfig } from 'zodline';
 import accountsDatevGet from './commands/accounts-datev/get';
 import accountsDatevList from './commands/accounts-datev/list';
 import accountsBalance from './commands/accounts/balance';

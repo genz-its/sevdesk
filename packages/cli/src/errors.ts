@@ -1,9 +1,9 @@
 import { SevDeskError } from '@genz-its/sevdesk-sdk';
-import { ZliError } from '@robingenz/zli';
 import { z } from 'zod';
+import { ZodlineError } from 'zodline';
 
 export function formatError(error: unknown): string {
-  if (error instanceof ZliError) {
+  if (error instanceof ZodlineError) {
     return error.message;
   }
   if (error instanceof z.ZodError) {

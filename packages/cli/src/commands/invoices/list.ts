@@ -1,7 +1,7 @@
 import type { InvoiceStatus } from '@genz-its/sevdesk-sdk';
-import { defineCommand, defineOptions } from '@robingenz/zli';
 import { consola } from 'consola';
 import { z } from 'zod';
+import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
 import { contactLabel, printJson, printTable } from '../../output';
 import { fetchAll } from '../../pagination';
