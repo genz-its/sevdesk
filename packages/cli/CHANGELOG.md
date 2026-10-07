@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.7](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.6...sevdesk-cli-v0.1.7) (2026-10-07)
+
+
+### Features
+
+* add vouchers:document to download voucher documents ([#10](https://github.com/genz-its/sevdesk/issues/10)) ([9142673](https://github.com/genz-its/sevdesk/commit/9142673ce86efc7ae3694efbee70fff37b86e51b))
+
+
+### Bug Fixes
+
+* **cli:** replace deprecated `@robingenz/zli` with `zodline` ([#8](https://github.com/genz-its/sevdesk/issues/8)) ([901d73d](https://github.com/genz-its/sevdesk/commit/901d73dd78dd6d73027c08b7055cb5a634264e9a))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @genz-its/sevdesk-sdk bumped from 0.1.5 to 0.1.6
+
 ## [0.1.6](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.5...sevdesk-cli-v0.1.6) (2026-08-05)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.5...sevdesk-sdk-v0.1.6) (2026-10-07)
+
+
+### Features
+
+* add vouchers:document to download voucher documents ([#10](https://github.com/genz-its/sevdesk/issues/10)) ([9142673](https://github.com/genz-its/sevdesk/commit/9142673ce86efc7ae3694efbee70fff37b86e51b))
+
 ## [0.1.5](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.4...sevdesk-sdk-v0.1.5) (2026-08-05)
 
 
