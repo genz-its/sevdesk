@@ -78,6 +78,7 @@ await sevdesk.vouchers.book({
 | `sevdesk.contactAddresses`  | Manage the addresses of contacts.                                    |
 | `sevdesk.communicationWays` | Manage the phone numbers and e-mail addresses of contacts.           |
 | `sevdesk.creditNotes`       | Manage credit notes, send them, and book payments.                   |
+| `sevdesk.documents`         | Download the files attached to vouchers.                             |
 | `sevdesk.exports`           | Run DATEV export jobs and CSV exports.                               |
 | `sevdesk.invoices`          | Manage invoices, render PDFs, send them, and book payments.          |
 | `sevdesk.orders`            | Manage orders and their positions.                                   |
