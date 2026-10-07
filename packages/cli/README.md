@@ -4,7 +4,7 @@ Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1
 
 ## Features
 
-- 🧾 **Vouchers**: Create vouchers from receipt files (PDF, image, XML), list, book, reset and enshrine them.
+- 🧾 **Vouchers**: Create vouchers from receipt files (PDF, image, XML), list, book, reset and enshrine them, and download their attached documents.
 - 💳 **Transactions**: List and filter bank transactions, for example the ones that are not booked yet.
 - 🏦 **Check accounts**: List accounts, query balances, and create clearing or file import accounts.
 - 🧭 **Receipt guidance**: Find bookable accounts and their allowed tax rules.
@@ -125,6 +125,7 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`transactions:list`](#transactionslist)
 - [`vouchers:book`](#vouchersbook)
 - [`vouchers:create`](#voucherscreate)
+- [`vouchers:document`](#vouchersdocument)
 - [`vouchers:enshrine`](#vouchersenshrine)
 - [`vouchers:get`](#vouchersget)
 - [`vouchers:list`](#voucherslist)
@@ -839,6 +840,20 @@ sevdesk vouchers:create [options]
 - `--supplier-name`: Name of the supplier, used when no supplier ID is given.
 - `--description`: The voucher number.
 - `--comment`: Comment for the voucher position.
+- `--json`: Output in JSON format.
+
+### `vouchers:document`
+
+Download the document attached to a voucher.
+
+```bash
+sevdesk vouchers:document [options]
+```
+
+**Options:**
+
+- `--id`: ID of the voucher. If omitted, you will be prompted.
+- `--output`: Path to write the document to. Defaults to the file name reported by the API. Existing files are never overwritten.
 - `--json`: Output in JSON format.
 
 ### `vouchers:enshrine`

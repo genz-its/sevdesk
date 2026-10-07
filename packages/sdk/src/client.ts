@@ -7,6 +7,7 @@ import { CommunicationWaysResource } from './resources/communication-ways';
 import { ContactAddressesResource } from './resources/contact-addresses';
 import { ContactsResource } from './resources/contacts';
 import { CreditNotesResource } from './resources/credit-notes';
+import { DocumentsResource } from './resources/documents';
 import { ExportsResource } from './resources/exports';
 import { InvoicesResource } from './resources/invoices';
 import { OrdersResource } from './resources/orders';
@@ -25,6 +26,7 @@ export class SevDesk {
   public readonly contactAddresses: ContactAddressesResource;
   public readonly contacts: ContactsResource;
   public readonly creditNotes: CreditNotesResource;
+  public readonly documents: DocumentsResource;
   public readonly exports: ExportsResource;
   public readonly invoices: InvoicesResource;
   public readonly orders: OrdersResource;
@@ -44,6 +46,7 @@ export class SevDesk {
     this.contactAddresses = new ContactAddressesResource(http);
     this.contacts = new ContactsResource(http);
     this.creditNotes = new CreditNotesResource(http);
+    this.documents = new DocumentsResource(http);
     this.exports = new ExportsResource(http);
     this.invoices = new InvoicesResource(http);
     this.orders = new OrdersResource(http);

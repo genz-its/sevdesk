@@ -1,10 +1,11 @@
 import { consola } from 'consola';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import bookCommand from '../src/commands/vouchers/book';
 import createCommand from '../src/commands/vouchers/create';
+import documentCommand from '../src/commands/vouchers/document';
 import enshrineCommand from '../src/commands/vouchers/enshrine';
 import getCommand from '../src/commands/vouchers/get';
 import listCommand from '../src/commands/vouchers/list';
@@ -264,6 +265,121 @@ describe('voucher commands', () => {
       stubFetch({ objects: [] });
       await positionsCommand.action({ json: false }, undefined);
       expect(consola.info).toHaveBeenCalledWith('No voucher positions found.');
+    });
+  });
+
+  describe('document', () => {
+    const documentContent = Buffer.from('%PDF-1.4 receipt');
+    const documentFile = {
+      filename: 'receipt.pdf',
+      mimeType: 'application/pdf',
+      base64Encoded: true,
+      content: documentContent.toString('base64'),
+    };
+    const voucherWithDocument = {
+      ...voucher,
+      document: { id: '7', objectName: 'Document' },
+    };
+
+    async function tempPath(): Promise<string> {
+      return join(await mkdtemp(join(tmpdir(), 'sevdesk-cli-')), 'receipt.pdf');
+    }
+
+    it('writes the decoded document of the voucher to the output path', async () => {
+      const fetchMock = stubFetch(
+        { objects: [voucherWithDocument] },
+        { objects: documentFile },
+      );
+      const path = await tempPath();
+      await documentCommand.action(
+        { id: 42, output: path, json: true },
+        undefined,
+      );
+      expect(requestAt(fetchMock, 0).url).toContain('/Voucher/42');
+      expect(requestAt(fetchMock, 1).url).toContain('/Document/7/download');
+      expect(await readFile(path)).toEqual(documentContent);
+      expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual({
+        filename: 'receipt.pdf',
+        path,
+      });
+    });
+
+    it('derives a file name from the voucher ID when the API reports none', async () => {
+      stubFetch(
+        { objects: [voucherWithDocument] },
+        { objects: { ...documentFile, filename: null } },
+      );
+      const cwd = process.cwd();
+      process.chdir(await mkdtemp(join(tmpdir(), 'sevdesk-cli-')));
+      try {
+        await documentCommand.action({ id: 42, json: true }, undefined);
+        expect(await readFile('voucher-42.pdf')).toEqual(documentContent);
+      } finally {
+        process.chdir(cwd);
+      }
+    });
+
+    it('strips directory components from the reported file name', async () => {
+      stubFetch(
+        { objects: [voucherWithDocument] },
+        { objects: { ...documentFile, filename: '../../escape.pdf' } },
+      );
+      const cwd = process.cwd();
+      process.chdir(await mkdtemp(join(tmpdir(), 'sevdesk-cli-')));
+      try {
+        await documentCommand.action({ id: 42, json: true }, undefined);
+        expect(await readFile('escape.pdf')).toEqual(documentContent);
+      } finally {
+        process.chdir(cwd);
+      }
+    });
+
+    it('writes raw content when the API flags it as not base64 encoded', async () => {
+      stubFetch(
+        { objects: [voucherWithDocument] },
+        {
+          objects: {
+            ...documentFile,
+            base64Encoded: false,
+            content: '<xml/>',
+          },
+        },
+      );
+      const path = await tempPath();
+      await documentCommand.action(
+        { id: 42, output: path, json: false },
+        undefined,
+      );
+      expect(await readFile(path, 'utf8')).toBe('<xml/>');
+    });
+
+    it('exits when the voucher has no document', async () => {
+      const fetchMock = stubFetch({
+        objects: [{ ...voucher, document: null }],
+      });
+      await expectExit(
+        documentCommand.action(
+          { id: 42, output: await tempPath(), json: false },
+          undefined,
+        ),
+      );
+      expect(consola.error).toHaveBeenCalledWith(
+        'Voucher 42 has no document attached.',
+      );
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not overwrite an existing file', async () => {
+      stubFetch({ objects: [voucherWithDocument] }, { objects: documentFile });
+      const path = await tempPath();
+      await writeFile(path, 'existing');
+      await expect(
+        documentCommand.action(
+          { id: 42, output: path, json: false },
+          undefined,
+        ),
+      ).rejects.toThrow('EEXIST');
+      expect(await readFile(path, 'utf8')).toBe('existing');
     });
   });
 

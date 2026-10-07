@@ -46,6 +46,7 @@ import transactionsGet from './commands/transactions/get';
 import transactionsList from './commands/transactions/list';
 import vouchersBook from './commands/vouchers/book';
 import vouchersCreate from './commands/vouchers/create';
+import vouchersDocument from './commands/vouchers/document';
 import vouchersEnshrine from './commands/vouchers/enshrine';
 import vouchersGet from './commands/vouchers/get';
 import vouchersList from './commands/vouchers/list';
@@ -107,6 +108,7 @@ const config = defineConfig({
     'transactions:list': transactionsList,
     'vouchers:book': vouchersBook,
     'vouchers:create': vouchersCreate,
+    'vouchers:document': vouchersDocument,
     'vouchers:enshrine': vouchersEnshrine,
     'vouchers:get': vouchersGet,
     'vouchers:list': vouchersList,

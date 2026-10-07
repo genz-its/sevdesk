@@ -14,6 +14,7 @@ export * from './resources/communication-ways';
 export * from './resources/contact-addresses';
 export * from './resources/contacts';
 export * from './resources/credit-notes';
+export * from './resources/documents';
 export * from './resources/exports';
 export * from './resources/invoices';
 export * from './resources/orders';
