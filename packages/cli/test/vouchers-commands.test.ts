@@ -319,6 +319,40 @@ describe('voucher commands', () => {
       }
     });
 
+    it('strips directory components from the reported file name', async () => {
+      stubFetch(
+        { objects: [voucherWithDocument] },
+        { objects: { ...documentFile, filename: '../../escape.pdf' } },
+      );
+      const cwd = process.cwd();
+      process.chdir(await mkdtemp(join(tmpdir(), 'sevdesk-cli-')));
+      try {
+        await documentCommand.action({ id: 42, json: true }, undefined);
+        expect(await readFile('escape.pdf')).toEqual(documentContent);
+      } finally {
+        process.chdir(cwd);
+      }
+    });
+
+    it('writes raw content when the API flags it as not base64 encoded', async () => {
+      stubFetch(
+        { objects: [voucherWithDocument] },
+        {
+          objects: {
+            ...documentFile,
+            base64Encoded: false,
+            content: '<xml/>',
+          },
+        },
+      );
+      const path = await tempPath();
+      await documentCommand.action(
+        { id: 42, output: path, json: false },
+        undefined,
+      );
+      expect(await readFile(path, 'utf8')).toBe('<xml/>');
+    });
+
     it('exits when the voucher has no document', async () => {
       const fetchMock = stubFetch({
         objects: [{ ...voucher, document: null }],

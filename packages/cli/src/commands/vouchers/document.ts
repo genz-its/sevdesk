@@ -1,6 +1,6 @@
 import { consola } from 'consola';
 import { writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import { z } from 'zod';
 import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
@@ -39,10 +39,17 @@ export default defineCommand({
     const file = await client.documents.download({
       documentId: Number(voucher.document.id),
     });
-    const filename =
-      file.filename || `voucher-${voucherId}.${file.mimeType.split('/')[1]}`;
+    // basename() keeps a reported name like `../x.pdf` inside the working directory.
+    const filename = file.filename
+      ? basename(file.filename)
+      : `voucher-${voucherId}.${file.mimeType.split('/')[1]}`;
     const path = resolve(options.output ?? filename);
-    await writeFile(path, Buffer.from(file.content, 'base64'), { flag: 'wx' });
+    // Decode unless explicitly flagged as raw: the flag's spelling is unverified.
+    const content =
+      file.base64Encoded === false
+        ? file.content
+        : Buffer.from(file.content, 'base64');
+    await writeFile(path, content, { flag: 'wx' });
     if (options.json) {
       printJson({ filename, path });
       return;
