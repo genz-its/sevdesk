@@ -259,6 +259,7 @@ describe('VouchersResource.save', () => {
 
     const body = parsedBody(fetch);
     expect(body.voucher).toMatchObject({ id: 1, status: 100 });
+    expect(body.voucher).not.toHaveProperty('voucherType');
     expect(body.voucherPosSave).toMatchObject([{ id: 2, sumGross: 119 }]);
   });
 });

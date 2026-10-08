@@ -422,7 +422,8 @@ function toVoucherBody(voucher: VoucherInput): Record<string, unknown> {
     status: voucher.status,
     creditDebit: voucher.creditDebit,
     taxRule: { id: voucher.taxRuleId, objectName: 'TaxRule' },
-    voucherType: voucher.voucherType ?? 'VOU',
+    // The default only applies to new vouchers; an update keeps the stored type.
+    voucherType: voucher.voucherType ?? (voucher.id ? undefined : 'VOU'),
     voucherDate: toOptionalVoucherDate(voucher.voucherDate),
     payDate: toOptionalVoucherDate(voucher.payDate),
     deliveryDate: toOptionalVoucherDate(voucher.deliveryDate),

@@ -5,6 +5,7 @@ import { defineCommand, defineOptions } from 'zodline';
 import { requireClient } from '../../client';
 import { requireNumberOption } from '../../options';
 import { printJson } from '../../output';
+import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description: 'Move a draft voucher to the open status.',
@@ -28,7 +29,9 @@ export default defineCommand({
       );
       process.exit(1);
     }
-    const positions = await client.vouchers.listPositions({ voucherId });
+    const positions = await fetchAll((page) =>
+      client.vouchers.listPositions({ voucherId, ...page }),
+    );
     if (positions.some((position) => position.accountDatev === null)) {
       consola.error(
         `Voucher ${voucherId} has legacy bookkeeping-1.0 positions, which cannot be saved.`,

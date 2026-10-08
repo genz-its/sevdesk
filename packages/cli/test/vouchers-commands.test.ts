@@ -803,11 +803,12 @@ describe('voucher commands', () => {
       const fetchMock = stubFetch(
         { objects: [draft] },
         { objects: [position] },
+        { objects: [] },
         { objects: { voucher: { ...draft, status: '100' }, voucherPos: [] } },
       );
       await openCommand.action({ id: 42, json: true }, undefined);
       expect(requestAt(fetchMock, 1).url).toContain('voucher%5Bid%5D=42');
-      const save = requestAt(fetchMock, 2);
+      const save = requestAt(fetchMock, 3);
       expect(save.url).toContain('/Voucher/Factory/saveVoucher');
       expect(save.init.method).toBe('POST');
       expect(JSON.parse(save.init.body as string)).toEqual({
@@ -856,10 +857,12 @@ describe('voucher commands', () => {
     it('refuses legacy bookkeeping-1.0 positions without saving', async () => {
       const fetchMock = stubFetch(
         { objects: [draft] },
+        { objects: [position] },
         { objects: [{ ...position, accountDatev: null }] },
+        { objects: [] },
       );
       await expectExit(openCommand.action({ id: 42, json: false }, undefined));
-      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock).toHaveBeenCalledTimes(4);
     });
   });
 
