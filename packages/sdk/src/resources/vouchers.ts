@@ -14,6 +14,11 @@ export type VoucherBookingType =
   'FULL_PAYMENT' | 'N' | 'CB' | 'O' | 'OF' | 'MTC';
 
 export interface VoucherInput {
+  /**
+   * Id of an existing draft voucher to update instead of creating a new one.
+   * Fields left out keep their stored value.
+   */
+  id?: number;
   /** `50` for a draft voucher, `100` for an open one. */
   status: 50 | 100;
   /** `C` for a credit voucher, `D` for a debit voucher. */
@@ -37,6 +42,8 @@ export interface VoucherInput {
 }
 
 export interface VoucherPositionInput {
+  /** Id of an existing position to update instead of adding a new one. */
+  id?: number;
   accountDatevId: number;
   taxRate: number;
   /** `true` if `sumNet` is authoritative, `false` if `sumGross` is. */
@@ -83,6 +90,9 @@ export interface UpdateVoucherOptions {
   /** The voucher number. */
   description?: string;
   payDate?: DateInput;
+  deliveryDate?: DateInput;
+  /** `null` removes the end of the service period, leaving a single service date. */
+  deliveryDateUntil?: DateInput | null;
   supplierName?: string;
 }
 
@@ -152,8 +162,10 @@ export interface VoucherPosition {
   /** Booking account of legacy bookkeeping-1.0 positions. `null` for 2.0 positions. */
   accountingType: ModelRefResponse | null;
   taxRate: string;
-  net: boolean;
-  isAsset: boolean;
+  /** `'1'` if `sumNet` is authoritative, `'0'` if `sumGross` is. */
+  net: string;
+  /** `'1'` or `'0'`. */
+  isAsset: string;
   sumNet: string;
   sumTax: string;
   sumGross: string;
@@ -303,15 +315,29 @@ export class VouchersResource extends BaseResource {
 
   /** Updates simple fields of a draft voucher via `PUT /Voucher/{voucherId}`. */
   public update(options: UpdateVoucherOptions): Promise<Voucher> {
-    const { voucherId, voucherDate, description, payDate, supplierName } =
-      options;
+    const {
+      voucherId,
+      voucherDate,
+      description,
+      payDate,
+      deliveryDate,
+      deliveryDateUntil,
+      supplierName,
+    } = options;
     return this.http.request<Voucher>({
       method: 'PUT',
       path: `/Voucher/${voucherId}`,
       body: {
+        objectName: 'Voucher',
+        mapAll: true,
         voucherDate: toOptionalVoucherDate(voucherDate),
         description,
         payDate: toOptionalVoucherDate(payDate),
+        deliveryDate: toOptionalVoucherDate(deliveryDate),
+        deliveryDateUntil:
+          deliveryDateUntil === null
+            ? null
+            : toOptionalVoucherDate(deliveryDateUntil),
         supplierName,
       },
     });
@@ -390,12 +416,14 @@ export class VouchersResource extends BaseResource {
 
 function toVoucherBody(voucher: VoucherInput): Record<string, unknown> {
   return {
+    id: voucher.id,
     objectName: 'Voucher',
     mapAll: true,
     status: voucher.status,
     creditDebit: voucher.creditDebit,
     taxRule: { id: voucher.taxRuleId, objectName: 'TaxRule' },
-    voucherType: voucher.voucherType ?? 'VOU',
+    // The default only applies to new vouchers; an update keeps the stored type.
+    voucherType: voucher.voucherType ?? (voucher.id ? undefined : 'VOU'),
     voucherDate: toOptionalVoucherDate(voucher.voucherDate),
     payDate: toOptionalVoucherDate(voucher.payDate),
     deliveryDate: toOptionalVoucherDate(voucher.deliveryDate),
@@ -413,6 +441,7 @@ function toVoucherPositionBody(
   position: VoucherPositionInput,
 ): Record<string, unknown> {
   return {
+    id: position.id,
     objectName: 'VoucherPos',
     mapAll: true,
     voucher: null,

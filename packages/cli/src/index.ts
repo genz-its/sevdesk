@@ -50,9 +50,11 @@ import vouchersDocument from './commands/vouchers/document';
 import vouchersEnshrine from './commands/vouchers/enshrine';
 import vouchersGet from './commands/vouchers/get';
 import vouchersList from './commands/vouchers/list';
+import vouchersOpen from './commands/vouchers/open';
 import vouchersPositions from './commands/vouchers/positions';
 import vouchersResetToDraft from './commands/vouchers/reset-to-draft';
 import vouchersResetToOpen from './commands/vouchers/reset-to-open';
+import vouchersUpdate from './commands/vouchers/update';
 import { formatError } from './errors';
 import { pkg } from './package';
 
@@ -112,9 +114,11 @@ const config = defineConfig({
     'vouchers:enshrine': vouchersEnshrine,
     'vouchers:get': vouchersGet,
     'vouchers:list': vouchersList,
+    'vouchers:open': vouchersOpen,
     'vouchers:positions': vouchersPositions,
     'vouchers:reset-to-draft': vouchersResetToDraft,
     'vouchers:reset-to-open': vouchersResetToOpen,
+    'vouchers:update': vouchersUpdate,
   },
 });
 
