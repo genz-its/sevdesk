@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.6...sevdesk-sdk-v0.1.7) (2026-10-08)
+
+
+### Features
+
+* add vouchers:update and vouchers:open ([#11](https://github.com/genz-its/sevdesk/issues/11)) ([56164c3](https://github.com/genz-its/sevdesk/commit/56164c3a6692e11a31d996e158454b67d992e385))
+
 ## [0.1.6](https://github.com/genz-its/sevdesk/compare/sevdesk-sdk-v0.1.5...sevdesk-sdk-v0.1.6) (2026-10-07)
 
 
