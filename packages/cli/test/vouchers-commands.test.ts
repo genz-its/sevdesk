@@ -9,8 +9,10 @@ import documentCommand from '../src/commands/vouchers/document';
 import enshrineCommand from '../src/commands/vouchers/enshrine';
 import getCommand from '../src/commands/vouchers/get';
 import listCommand from '../src/commands/vouchers/list';
+import openCommand from '../src/commands/vouchers/open';
 import positionsCommand from '../src/commands/vouchers/positions';
 import resetToOpenCommand from '../src/commands/vouchers/reset-to-open';
+import updateCommand from '../src/commands/vouchers/update';
 import { isInteractive } from '../src/interactive';
 import { promptConfirm } from '../src/prompt';
 
@@ -43,7 +45,7 @@ const position = {
   voucher: { id: '42', objectName: 'Voucher' },
   accountDatev: { id: '27', objectName: 'AccountDatev' },
   taxRate: '19',
-  net: false,
+  net: '0',
   sumNet: '100.00',
   sumGross: '119.00',
 };
@@ -722,6 +724,142 @@ describe('voucher commands', () => {
       const { url, init } = requestAt(fetchMock, 0);
       expect(url).toContain('/Voucher/42/resetToOpen');
       expect(init.method).toBe('PUT');
+    });
+  });
+
+  describe('update', () => {
+    it('sets the service period', async () => {
+      const fetchMock = stubFetch({ objects: voucher });
+      await updateCommand.action(
+        {
+          id: 42,
+          deliveryDate: '01.01.2024',
+          deliveryDateUntil: '31.01.2024',
+          clearDeliveryDateUntil: false,
+          json: false,
+        },
+        undefined,
+      );
+      const { url, init } = requestAt(fetchMock, 0);
+      expect(url).toContain('/Voucher/42');
+      expect(init.method).toBe('PUT');
+      expect(JSON.parse(init.body as string)).toEqual({
+        objectName: 'Voucher',
+        mapAll: true,
+        deliveryDate: '01.01.2024',
+        deliveryDateUntil: '31.01.2024',
+      });
+      expect(consola.success).toHaveBeenCalledWith('Updated voucher 42.');
+    });
+
+    it('clears the end of the service period', async () => {
+      const fetchMock = stubFetch({
+        objects: { ...voucher, deliveryDateUntil: null },
+      });
+      await updateCommand.action(
+        { id: 42, clearDeliveryDateUntil: true, json: true },
+        undefined,
+      );
+      const { url, init } = requestAt(fetchMock, 0);
+      expect(url).toContain('/Voucher/42');
+      expect(init.method).toBe('PUT');
+      expect(JSON.parse(init.body as string)).toEqual({
+        objectName: 'Voucher',
+        mapAll: true,
+        deliveryDateUntil: null,
+      });
+      expect(
+        JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0]),
+      ).toMatchObject({ id: '42', deliveryDateUntil: null });
+    });
+
+    it('rejects setting and clearing the end of the service period', async () => {
+      const fetchMock = stubFetch();
+      await expectExit(
+        updateCommand.action(
+          {
+            id: 42,
+            deliveryDateUntil: '31.01.2024',
+            clearDeliveryDateUntil: true,
+            json: false,
+          },
+          undefined,
+        ),
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('open', () => {
+    const draft = {
+      ...voucher,
+      status: '50',
+      creditDebit: 'C',
+      voucherType: 'VOU',
+      taxRule: { id: '9', objectName: 'TaxRule' },
+    };
+
+    it('saves the draft with status 100 and its unchanged positions', async () => {
+      const fetchMock = stubFetch(
+        { objects: [draft] },
+        { objects: [position] },
+        { objects: { voucher: { ...draft, status: '100' }, voucherPos: [] } },
+      );
+      await openCommand.action({ id: 42, json: true }, undefined);
+      expect(requestAt(fetchMock, 1).url).toContain('voucher%5Bid%5D=42');
+      const save = requestAt(fetchMock, 2);
+      expect(save.url).toContain('/Voucher/Factory/saveVoucher');
+      expect(save.init.method).toBe('POST');
+      expect(JSON.parse(save.init.body as string)).toEqual({
+        voucher: {
+          id: 42,
+          objectName: 'Voucher',
+          mapAll: true,
+          status: 100,
+          creditDebit: 'C',
+          taxRule: { id: 9, objectName: 'TaxRule' },
+          voucherType: 'VOU',
+        },
+        voucherPosSave: [
+          {
+            id: 1001,
+            objectName: 'VoucherPos',
+            mapAll: true,
+            voucher: null,
+            accountDatev: { id: 27, objectName: 'AccountDatev' },
+            taxRate: 19,
+            net: false,
+            sumNet: 100,
+            sumGross: 119,
+          },
+        ],
+        voucherPosDelete: null,
+      });
+      expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual({
+        id: '42',
+        status: '100',
+      });
+    });
+
+    it.each([
+      ['an open voucher', { ...draft, status: '100' }],
+      [
+        'an enshrined draft',
+        { ...draft, enshrined: '2024-02-01T00:00:00+01:00' },
+      ],
+    ])('refuses %s without saving', async (_, stored) => {
+      const fetchMock = stubFetch({ objects: [stored] });
+      await expectExit(openCommand.action({ id: 42, json: false }, undefined));
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('refuses legacy bookkeeping-1.0 positions without saving', async () => {
+      const fetchMock = stubFetch(
+        { objects: [draft] },
+        { objects: [{ ...position, accountDatev: null }] },
+      );
+      await expectExit(openCommand.action({ id: 42, json: false }, undefined));
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -244,6 +244,23 @@ describe('VouchersResource.save', () => {
     ]);
     expect(body.voucher).toMatchObject({ voucherType: 'RV' });
   });
+
+  it('updates an existing voucher and position when ids are given', async () => {
+    const fetch = createMockFetch({
+      objects: { voucher: { id: '1' }, voucherPos: [] },
+    });
+
+    await createResource(fetch).save({
+      voucher: { id: 1, status: 100, creditDebit: 'C', taxRuleId: 9 },
+      positions: [
+        { id: 2, accountDatevId: 27, taxRate: 19, net: false, sumGross: 119 },
+      ],
+    });
+
+    const body = parsedBody(fetch);
+    expect(body.voucher).toMatchObject({ id: 1, status: 100 });
+    expect(body.voucherPosSave).toMatchObject([{ id: 2, sumGross: 119 }]);
+  });
 });
 
 describe('VouchersResource.createFromFile', () => {
@@ -293,8 +310,45 @@ describe('VouchersResource.update', () => {
     expect(url).toBe(`${BASE_URL}/Voucher/1`);
     expect(init.method).toBe('PUT');
     expect(parsedBody(fetch)).toEqual({
+      objectName: 'Voucher',
+      mapAll: true,
       voucherDate: 1719792000,
       description: 'RE-1001',
+    });
+  });
+
+  it('sets the service period', async () => {
+    const fetch = createMockFetch({ objects: { id: '1' } });
+
+    await createResource(fetch).update({
+      voucherId: 1,
+      deliveryDate: '01.07.2024',
+      deliveryDateUntil: '31.07.2024',
+    });
+
+    expect(parsedBody(fetch)).toEqual({
+      objectName: 'Voucher',
+      mapAll: true,
+      deliveryDate: '01.07.2024',
+      deliveryDateUntil: '31.07.2024',
+    });
+  });
+
+  it('sends null to clear the end of the service period', async () => {
+    const fetch = createMockFetch({ objects: { id: '1' } });
+
+    await createResource(fetch).update({
+      voucherId: 1,
+      deliveryDateUntil: null,
+    });
+
+    const { url, init } = lastRequest(fetch);
+    expect(url).toBe(`${BASE_URL}/Voucher/1`);
+    expect(init.method).toBe('PUT');
+    expect(parsedBody(fetch)).toEqual({
+      objectName: 'Voucher',
+      mapAll: true,
+      deliveryDateUntil: null,
     });
   });
 });

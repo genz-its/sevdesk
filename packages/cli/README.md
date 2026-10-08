@@ -129,9 +129,11 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`vouchers:enshrine`](#vouchersenshrine)
 - [`vouchers:get`](#vouchersget)
 - [`vouchers:list`](#voucherslist)
+- [`vouchers:open`](#vouchersopen)
 - [`vouchers:positions`](#voucherspositions)
 - [`vouchers:reset-to-draft`](#vouchersreset-to-draft)
 - [`vouchers:reset-to-open`](#vouchersreset-to-open)
+- [`vouchers:update`](#vouchersupdate)
 
 ### `login`
 
@@ -903,6 +905,19 @@ sevdesk vouchers:list [options]
 - `--offset`: Number of vouchers to skip.
 - `--json`: Output in JSON format.
 
+### `vouchers:open`
+
+Move a draft voucher to the open status. Everything else, including the attached document and the positions, stays unchanged. Exits with an error and changes nothing unless the voucher is a draft that is not enshrined.
+
+```bash
+sevdesk vouchers:open [options]
+```
+
+**Options:**
+
+- `--id`: ID of the voucher. If omitted, you will be prompted.
+- `--json`: Output in JSON format.
+
 ### `vouchers:positions`
 
 List voucher positions.
@@ -944,6 +959,22 @@ sevdesk vouchers:reset-to-open [options]
 
 - `--id`: ID of the voucher. If omitted, you will be prompted.
 - `--yes`: Skip the confirmation prompt. Defaults to `false`.
+- `--json`: Output in JSON format.
+
+### `vouchers:update`
+
+Update the service period (Leistungszeitraum) of a voucher. Options you leave out keep their stored value.
+
+```bash
+sevdesk vouchers:update [options]
+```
+
+**Options:**
+
+- `--id`: ID of the voucher. If omitted, you will be prompted.
+- `--delivery-date`: Start of the service period, or the single service date, as `dd.mm.yyyy` or Unix timestamp.
+- `--delivery-date-until`: End of the service period as `dd.mm.yyyy` or Unix timestamp.
+- `--clear-delivery-date-until`: Remove the end of the service period, leaving a single service date. Cannot be combined with `--delivery-date-until`. Defaults to `false`.
 - `--json`: Output in JSON format.
 
 ## License
