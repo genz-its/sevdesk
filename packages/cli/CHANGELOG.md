@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.8](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.7...sevdesk-cli-v0.1.8) (2026-10-08)
+
+
+### Features
+
+* add vouchers:update and vouchers:open ([#11](https://github.com/genz-its/sevdesk/issues/11)) ([56164c3](https://github.com/genz-its/sevdesk/commit/56164c3a6692e11a31d996e158454b67d992e385))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @genz-its/sevdesk-sdk bumped from 0.1.6 to 0.1.7
+
 ## [0.1.7](https://github.com/genz-its/sevdesk/compare/sevdesk-cli-v0.1.6...sevdesk-cli-v0.1.7) (2026-10-07)
 
 
