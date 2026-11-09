@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+release-artifacts/
 *.log
 .DS_Store
 openapi.yaml

@@ -1,4 +1,5 @@
 dist/
+release-artifacts/
 package-lock.json
 openapi.yaml
 # Local task brief contains live account data; never publish or format it.

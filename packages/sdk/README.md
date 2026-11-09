@@ -18,8 +18,11 @@ Unofficial Node.js SDK for the [sevdesk](https://sevdesk.de/) API.[^1]
 ## Installation
 
 ```bash
-npm install @genz-its/sevdesk-sdk
+npm install https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-sdk-0.2.0.tgz
 ```
+
+The package name is retained for import compatibility. Install the GitHub asset
+for this distribution; registry installs by package name alone install upstream.
 
 ## Usage
 

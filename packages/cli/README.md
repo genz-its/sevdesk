@@ -22,14 +22,18 @@ Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1
 Install the CLI globally:
 
 ```bash
-npm install -g @genz-its/sevdesk-cli
+npm install -g https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz
 ```
 
 Alternatively, run it without installation:
 
 ```bash
-npx @genz-its/sevdesk-cli <command>
+npx --package=https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz sevdesk <command>
 ```
+
+These GitHub release assets include this distribution's SDK. The unchanged
+`@genz-its` names preserve compatibility; registry installs by package name alone
+install upstream instead. See the [release notes](../../docs/releases/v0.2.0.md).
 
 ## Quickstart
 

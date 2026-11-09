@@ -1,6 +1,6 @@
 {
   "name": "@genz-its/sevdesk-sdk",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Unofficial Node.js SDK for the sevdesk API.",
   "type": "module",
   "sideEffects": false,
@@ -21,14 +21,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "homepage": "https://github.com/genz-its/sevdesk",
+  "homepage": "https://github.com/mi-skam/sevdesk",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/genz-its/sevdesk.git",
+    "url": "git+https://github.com/mi-skam/sevdesk.git",
     "directory": "packages/sdk"
   },
   "bugs": {
-    "url": "https://github.com/genz-its/sevdesk/issues"
+    "url": "https://github.com/mi-skam/sevdesk/issues"
   },
   "keywords": [
     "sevdesk",
