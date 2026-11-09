@@ -94,7 +94,7 @@ describe('invoice commands', () => {
       expect(url).toContain('endDate=31.01.2024');
       expect(url).toContain('contact%5Bid%5D=7');
       expect(url).toContain('contact%5BobjectName%5D=Contact');
-      expect(url).toContain('limit=10');
+      expect(url).toContain('limit=1000');
       expect(url).toContain('embed=contact');
       const output = vi.mocked(console.log).mock.calls.flat().join('\n');
       expect(output).toContain('NUMBER');

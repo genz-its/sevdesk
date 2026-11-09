@@ -1,4 +1,6 @@
 dist/
 package-lock.json
 openapi.yaml
+# Local task brief contains live account data; never publish or format it.
+/sevdesk-cli-invoice-workflows.md
 CHANGELOG.md

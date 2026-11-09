@@ -29,9 +29,12 @@ import exportTransactions from './commands/export/transactions';
 import exportVouchers from './commands/export/vouchers';
 import guidanceAccounts from './commands/guidance/accounts';
 import invoicesCreate from './commands/invoices/create';
+import invoicesDelete from './commands/invoices/delete';
 import invoicesGet from './commands/invoices/get';
 import invoicesList from './commands/invoices/list';
 import invoicesPdf from './commands/invoices/pdf';
+import invoicesSend from './commands/invoices/send';
+import invoicesUpdate from './commands/invoices/update';
 import login from './commands/login';
 import logout from './commands/logout';
 import numberingGet from './commands/numbering/get';
@@ -102,6 +105,9 @@ const config = defineConfig({
     'export:vouchers': exportVouchers,
     'guidance:accounts': guidanceAccounts,
     'invoices:create': invoicesCreate,
+    'invoices:delete': invoicesDelete,
+    'invoices:send': invoicesSend,
+    'invoices:update': invoicesUpdate,
     'invoices:get': invoicesGet,
     'invoices:list': invoicesList,
     'invoices:pdf': invoicesPdf,
