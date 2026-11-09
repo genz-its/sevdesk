@@ -70,24 +70,53 @@ await sevdesk.vouchers.book({
 
 ### Resources
 
-| Resource                    | Description                                                             |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `sevdesk.basics`            | Detect the bookkeeping system version and read numbering configuration. |
-| `sevdesk.checkAccounts`     | Manage check accounts and query balances.                               |
-| `sevdesk.contacts`          | Manage contacts and customer numbers.                                   |
-| `sevdesk.contactAddresses`  | Manage the addresses of contacts.                                       |
-| `sevdesk.communicationWays` | Manage the phone numbers and e-mail addresses of contacts.              |
-| `sevdesk.creditNotes`       | Manage credit notes, send them, and book payments.                      |
-| `sevdesk.documents`         | Download the files attached to vouchers.                                |
-| `sevdesk.exports`           | Run DATEV export jobs and CSV exports.                                  |
-| `sevdesk.invoices`          | Manage invoices, render PDFs, send them, and book payments.             |
-| `sevdesk.orders`            | Manage orders and their positions.                                      |
-| `sevdesk.parts`             | Manage parts and query stock.                                           |
-| `sevdesk.receiptGuidance`   | Find bookable accounts (`AccountDatev`) and their allowed tax rules.    |
-| `sevdesk.reports`           | Generate PDF reports.                                                   |
-| `sevdesk.tags`              | Manage tags and tag relations.                                          |
-| `sevdesk.transactions`      | Manage check account transactions.                                      |
-| `sevdesk.vouchers`          | Upload receipts, create and book vouchers.                              |
+| Resource                    | Description                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `sevdesk.basics`            | Detect the bookkeeping system version and read numbering configuration.                                             |
+| `sevdesk.checkAccounts`     | Manage check accounts and query balances.                                                                           |
+| `sevdesk.contacts`          | Manage contacts and customer numbers.                                                                               |
+| `sevdesk.contactAddresses`  | Manage the addresses of contacts.                                                                                   |
+| `sevdesk.communicationWays` | Manage the phone numbers and e-mail addresses of contacts.                                                          |
+| `sevdesk.creditNotes`       | Manage credit notes, send them, and book payments.                                                                  |
+| `sevdesk.documents`         | Download the files attached to vouchers.                                                                            |
+| `sevdesk.exports`           | Run DATEV export jobs and CSV exports.                                                                              |
+| `sevdesk.invoices`          | Create/partially update drafts (`save`), delete (`delete`), email (`sendViaEmail`), render PDFs, and book payments. |
+| `sevdesk.orders`            | Manage orders and their positions.                                                                                  |
+| `sevdesk.parts`             | Manage parts and query stock.                                                                                       |
+| `sevdesk.receiptGuidance`   | Find bookable accounts (`AccountDatev`) and their allowed tax rules.                                                |
+| `sevdesk.reports`           | Generate PDF reports.                                                                                               |
+| `sevdesk.tags`              | Manage tags and tag relations.                                                                                      |
+| `sevdesk.transactions`      | Manage check account transactions.                                                                                  |
+| `sevdesk.vouchers`          | Upload receipts, create and book vouchers.                                                                          |
+
+### Invoice draft workflows
+
+`invoices.save` creates drafts with `invoice: InvoiceInput`, or partially updates
+an existing invoice with `invoice: { id, ...changedFields }`. It injects
+`objectName: 'Invoice'` and `mapAll: true`; omitted fields on updates are not
+defaulted or reset. Both modes use `POST /Invoice/Factory/saveInvoice`.
+
+```ts
+await sevdesk.invoices.save({
+  invoice: { id: 9001, contactId: 1001, headText: '<p>Dear ACME,</p>' },
+  takeDefaultAddress: true,
+});
+```
+
+Omit `invoicePosSave` to leave positions unchanged. To replace them, retrieve
+all old positions (paginate `getPositions`), supply new `invoicePosSave` values
+and `invoicePosDelete: [{ id: 7001, objectName: 'InvoicePos' }]`. The existing
+`positions` option remains an alias for `invoicePosSave`; do not pass both.
+`invoicePosDelete` defaults to `null`. Saving returns `{ invoice, positions }`.
+
+`invoices.sendViaEmail({ invoiceId, toEmail, subject, text, ... })` posts to
+`/Invoice/{invoiceId}/sendViaEmail`, returning the unwrapped `InvoiceEmail`
+object whose `object` is the invoice. Optional fields are `ccEmail`, `bccEmail`,
+`copy`, `additionalAttachments`, and `sendXml`. Sending finalises the invoice.
+`invoices.delete({ invoiceId })` uses `DELETE /Invoice/{invoiceId}` and returns
+nothing. The SDK is endpoint-level: callers must check draft/sending state and
+obtain approval before modifying, finalising, or deleting live invoices.
+The CLI provides these guards. Never blindly retry a failed send or save.
 
 ### Error handling
 
