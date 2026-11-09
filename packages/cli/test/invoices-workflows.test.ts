@@ -138,15 +138,13 @@ describe('invoice draft workflows', () => {
   const requestBody = () => JSON.parse(String(writes()[0]?.[1]?.body));
 
   it('fetches then sends once, substitutes the number, prints stored acknowledgement and writes a private receipt', async () => {
-    fetchMock
-      .mockResolvedValueOnce(response([draft]))
-      .mockResolvedValueOnce(
-        response({
-          id: '5001',
-          objectName: 'Email',
-          object: { ...sent, id: draft.id, invoiceNumber: draft.invoiceNumber },
-        }),
-      );
+    fetchMock.mockResolvedValueOnce(response([draft])).mockResolvedValueOnce(
+      response({
+        id: '5001',
+        objectName: 'Email',
+        object: { ...sent, id: draft.id, invoiceNumber: draft.invoiceNumber },
+      }),
+    );
     await run(
       'invoices:send',
       '9001',
@@ -315,6 +313,50 @@ describe('invoice draft workflows', () => {
     );
     expect(output()).toEqual(stored);
   });
+  it('fails closed if a position endpoint repeats a page instead of advancing', async () => {
+    fetchMock
+      .mockResolvedValueOnce(response([draft]))
+      .mockResolvedValueOnce(response([position]))
+      .mockResolvedValueOnce(response([position]));
+    await expect(
+      run('invoices:update', '9001', updateFile, '--yes'),
+    ).rejects.toThrow(/pagination did not advance/);
+    expect(writes()).toHaveLength(0);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain('/InvoicePos?');
+    expect(String(fetchMock.mock.calls[2]?.[0])).toContain('offset=1');
+  });
+
+  it('refuses deleting a position returned for another invoice', async () => {
+    fetchMock
+      .mockResolvedValueOnce(response([draft]))
+      .mockResolvedValueOnce(
+        response([
+          { ...position, invoice: { id: '9002', objectName: 'Invoice' } },
+        ]),
+      );
+    await expect(
+      run('invoices:update', '9001', updateFile, '--yes'),
+    ).rejects.toThrow(/another invoice/);
+    expect(writes()).toHaveLength(0);
+  });
+
+  it('replaces positions from every short page, not only the first', async () => {
+    fetchMock
+      .mockResolvedValueOnce(response([draft]))
+      .mockResolvedValueOnce(response([position]))
+      .mockResolvedValueOnce(response([{ ...position, id: '7002' }]))
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response({ invoice: draft, invoicePos: [] }))
+      .mockResolvedValueOnce(response([draft]));
+    await run('invoices:update', '9001', updateFile, '--yes', '--json');
+    expect(requestBody().invoicePosDelete).toEqual([
+      { id: 7001, objectName: 'InvoicePos' },
+      { id: 7002, objectName: 'InvoicePos' },
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(6);
+  });
+
   it('updates only headText without reading or mutating positions', async () => {
     await writeFile(
       updateFile,

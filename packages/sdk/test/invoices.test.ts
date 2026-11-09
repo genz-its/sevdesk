@@ -291,6 +291,40 @@ describe('InvoicesResource.getPositions', () => {
   });
 });
 
+describe('InvoicesResource.listPositions', () => {
+  it('uses the InvoicePos resource with invoice filters and pagination', async () => {
+    const positions = [
+      {
+        id: '7001',
+        objectName: 'InvoicePos',
+        invoice: { id: '9001', objectName: 'Invoice' },
+      },
+    ];
+    const fetch = createMockFetch({ objects: positions });
+    expect(
+      await createResource(fetch).listPositions({
+        invoiceId: 9001,
+        limit: 1000,
+        offset: 1,
+        embed: ['unity'],
+      }),
+    ).toEqual(positions);
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/InvoicePos?invoice%5Bid%5D=9001&invoice%5BobjectName%5D=Invoice&limit=1000&offset=1&embed=unity`,
+    );
+    expect(lastRequest(fetch).init.method).toBe('GET');
+  });
+  it('propagates API errors', async () => {
+    const fetch = createMockFetch(
+      { error: { message: 'ACME invalid invoice' } },
+      { status: 422 },
+    );
+    await expect(
+      createResource(fetch).listPositions({ invoiceId: 9001 }),
+    ).rejects.toMatchObject({ status: 422, message: 'ACME invalid invoice' });
+  });
+});
+
 describe('InvoicesResource.isPartiallyPaid', () => {
   it('unwraps the boolean payload', async () => {
     const fetch = createMockFetch({ objects: false });

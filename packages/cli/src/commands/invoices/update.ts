@@ -5,11 +5,11 @@ import { defineCommand, defineOptions } from 'zodline';
 import { idArgument } from '../../arguments';
 import { requireClient } from '../../client';
 import { invoiceDateCheck, invoiceUpdateSchema } from '../../invoices/model';
+import { fetchInvoicePositions } from '../../invoices/positions';
 import { invoiceSummary, requireDraft } from '../../invoices/workflow';
 import { assertNumberAvailable } from '../../numbering';
 import { confirmOrAbort } from '../../options';
 import { printJson } from '../../output';
-import { fetchAll } from '../../pagination';
 
 export default defineCommand({
   description:
@@ -98,9 +98,7 @@ export default defineCommand({
     const oldPositions =
       input.positions === undefined
         ? undefined
-        : await fetchAll((page) =>
-            client.invoices.getPositions({ invoiceId, ...page }),
-          );
+        : await fetchInvoicePositions(client, invoiceId);
     await client.invoices.save({
       ...payload,
       invoicePosDelete:

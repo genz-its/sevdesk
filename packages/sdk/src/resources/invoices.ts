@@ -429,7 +429,10 @@ export class InvoicesResource extends BaseResource {
     });
   }
 
-  /** Retrieves the positions of an invoice via `GET /Invoice/{invoiceId}/getPositions`. */
+  /**
+   * Retrieves positions via `GET /Invoice/{invoiceId}/getPositions`.
+   * This endpoint can ignore offset; use listPositions for complete paginated reads.
+   */
   public getPositions(
     options: { invoiceId: number; embed?: string[] } & ListOptions,
   ): Promise<InvoicePosition[]> {
@@ -438,6 +441,24 @@ export class InvoicesResource extends BaseResource {
       method: 'GET',
       path: `/Invoice/${invoiceId}/getPositions`,
       query: { limit, offset, embed },
+    });
+  }
+
+  /** Lists invoice positions with pagination via `GET /InvoicePos`. */
+  public listPositions(
+    options: { invoiceId: number; embed?: string[] } & ListOptions,
+  ): Promise<InvoicePosition[]> {
+    const { invoiceId, limit, offset, embed } = options;
+    return this.http.request<InvoicePosition[]>({
+      method: 'GET',
+      path: '/InvoicePos',
+      query: {
+        'invoice[id]': invoiceId,
+        'invoice[objectName]': 'Invoice',
+        limit,
+        offset,
+        embed,
+      },
     });
   }
 

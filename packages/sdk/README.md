@@ -104,10 +104,15 @@ await sevdesk.invoices.save({
 ```
 
 Omit `invoicePosSave` to leave positions unchanged. To replace them, retrieve
-all old positions (paginate `getPositions`), supply new `invoicePosSave` values
+all old positions (paginate `listPositions`), supply new `invoicePosSave` values
 and `invoicePosDelete: [{ id: 7001, objectName: 'InvoicePos' }]`. The existing
 `positions` option remains an alias for `invoicePosSave`; do not pass both.
 `invoicePosDelete` defaults to `null`. Saving returns `{ invoice, positions }`.
+
+`listPositions({ invoiceId, limit?, offset?, embed? })` uses `GET /InvoicePos`
+with an invoice filter. Use it for paginated reads: the convenience
+`GET /Invoice/{invoiceId}/getPositions` endpoint can ignore `offset` and repeat
+its first page. The SDK's `getPositions` stays a 1:1 wrapper for that endpoint.
 
 `invoices.sendViaEmail({ invoiceId, toEmail, subject, text, ... })` posts to
 `/Invoice/{invoiceId}/sendViaEmail`, returning the unwrapped `InvoiceEmail`

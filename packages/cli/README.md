@@ -809,7 +809,7 @@ sevdesk invoices:get [id] [options]
 
 **Options:**
 
-- `--positions`: Include all line items. With `--json`, returns `{ invoice, positions }` instead of the invoice alone.
+- `--positions`: Include all line items, paginated through `/InvoicePos` (the invoice convenience endpoint can ignore offsets). With `--json`, returns `{ invoice, positions }` instead of the invoice alone.
 - `--json`: Output in JSON format.
 
 ### `invoices:list`
