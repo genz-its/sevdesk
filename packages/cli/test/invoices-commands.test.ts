@@ -94,7 +94,7 @@ describe('invoice commands', () => {
       expect(url).toContain('endDate=31.01.2024');
       expect(url).toContain('contact%5Bid%5D=7');
       expect(url).toContain('contact%5BobjectName%5D=Contact');
-      expect(url).toContain('limit=10');
+      expect(url).toContain('limit=1000');
       expect(url).toContain('embed=contact');
       const output = vi.mocked(console.log).mock.calls.flat().join('\n');
       expect(output).toContain('NUMBER');
@@ -119,8 +119,11 @@ describe('invoice commands', () => {
         { objects: positions },
       );
       await getCommand.action({ positions: true, json: true }, [42]);
-      expect(requestAt(fetchMock, 1).url).toContain('/Invoice/42/getPositions');
-      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(requestAt(fetchMock, 1).url).toContain(
+        '/InvoicePos?invoice%5Bid%5D=42&invoice%5BobjectName%5D=Invoice',
+      );
+      expect(requestAt(fetchMock, 2).url).toContain('offset=1');
+      expect(fetchMock).toHaveBeenCalledTimes(3);
       expect(JSON.parse(vi.mocked(console.log).mock.calls[0]?.[0])).toEqual({
         invoice,
         positions,

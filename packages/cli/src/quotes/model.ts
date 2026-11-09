@@ -1,5 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
+import { deliverySchema } from '../delivery';
+export { deliverySchema, html } from '../delivery';
 
 const id = z.number().int().positive();
 const nonempty = z.string().trim().min(1);
@@ -27,17 +29,6 @@ export const positionSchema = z.strictObject({
   vatRate: percent,
   discount: percent.optional(),
   optional: z.boolean().optional(),
-});
-export const deliverySchema = z.strictObject({
-  to: z.email(),
-  cc: z.array(z.email()).optional(),
-  bcc: z.array(z.email()).optional(),
-  subject: nonempty.refine(
-    (v) => !/[\r\n]/.test(v),
-    'Subject must be a single line.',
-  ),
-  message: nonempty,
-  copyToSelf: z.boolean().optional(),
 });
 const document = z.strictObject({
   number: z.preprocess(
@@ -188,16 +179,6 @@ export function totals(q: QuoteDraft) {
     indicative: true,
     note: 'Preview (Vorschau); optional positions excluded. sevdesk totals remain authoritative.',
   };
-}
-
-export function html(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-    .replace(/\r?\n/g, '<br>');
 }
 
 export function preview(q: QuoteDraft) {

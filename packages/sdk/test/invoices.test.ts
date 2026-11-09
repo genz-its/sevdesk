@@ -291,6 +291,40 @@ describe('InvoicesResource.getPositions', () => {
   });
 });
 
+describe('InvoicesResource.listPositions', () => {
+  it('uses the InvoicePos resource with invoice filters and pagination', async () => {
+    const positions = [
+      {
+        id: '7001',
+        objectName: 'InvoicePos',
+        invoice: { id: '9001', objectName: 'Invoice' },
+      },
+    ];
+    const fetch = createMockFetch({ objects: positions });
+    expect(
+      await createResource(fetch).listPositions({
+        invoiceId: 9001,
+        limit: 1000,
+        offset: 1,
+        embed: ['unity'],
+      }),
+    ).toEqual(positions);
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/InvoicePos?invoice%5Bid%5D=9001&invoice%5BobjectName%5D=Invoice&limit=1000&offset=1&embed=unity`,
+    );
+    expect(lastRequest(fetch).init.method).toBe('GET');
+  });
+  it('propagates API errors', async () => {
+    const fetch = createMockFetch(
+      { error: { message: 'ACME invalid invoice' } },
+      { status: 422 },
+    );
+    await expect(
+      createResource(fetch).listPositions({ invoiceId: 9001 }),
+    ).rejects.toMatchObject({ status: 422, message: 'ACME invalid invoice' });
+  });
+});
+
 describe('InvoicesResource.isPartiallyPaid', () => {
   it('unwraps the boolean payload', async () => {
     const fetch = createMockFetch({ objects: false });
@@ -533,4 +567,164 @@ describe('InvoicesResource status transitions', () => {
 
     expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Invoice/1/resetToDraft`);
   });
+});
+
+describe('InvoicesResource draft workflows', () => {
+  it('sends a partial update without resetting omitted scalar fields or positions', async () => {
+    const fetch = createMockFetch({
+      objects: { invoice: { id: '9001' }, invoicePos: [] },
+    });
+    await createResource(fetch).save({
+      invoice: { id: 9001, headText: '<p>ACME introduction</p>' },
+    });
+    expect(parsedBody(fetch)).toEqual({
+      invoice: {
+        id: 9001,
+        objectName: 'Invoice',
+        mapAll: true,
+        headText: '<p>ACME introduction</p>',
+      },
+      invoicePosDelete: null,
+      discountSave: null,
+      discountDelete: null,
+    });
+  });
+
+  it('replaces positions using explicit references and takes the default address', async () => {
+    const fetch = createMockFetch({
+      objects: { invoice: { id: '9001' }, invoicePos: [{ id: '7002' }] },
+    });
+    await createResource(fetch).save({
+      invoice: {
+        id: 9001,
+        objectName: 'Invoice',
+        mapAll: true,
+        contactId: 1001,
+      },
+      invoicePosSave: [
+        {
+          name: 'ACME test support',
+          quantity: 1,
+          price: 1000,
+          taxRate: 19,
+          unityId: 1,
+        },
+      ],
+      invoicePosDelete: [{ id: 7001, objectName: 'InvoicePos' }],
+      takeDefaultAddress: true,
+    });
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/Invoice/Factory/saveInvoice`,
+    );
+    expect(lastRequest(fetch).init.method).toBe('POST');
+    expect(parsedBody(fetch)).toEqual({
+      invoice: {
+        id: 9001,
+        objectName: 'Invoice',
+        mapAll: true,
+        contact: { id: 1001, objectName: 'Contact' },
+      },
+      invoicePosSave: [
+        {
+          objectName: 'InvoicePos',
+          mapAll: true,
+          invoice: null,
+          name: 'ACME test support',
+          quantity: 1,
+          price: 1000,
+          taxRate: 19,
+          unity: { id: 1, objectName: 'Unity' },
+        },
+      ],
+      invoicePosDelete: [{ id: 7001, objectName: 'InvoicePos' }],
+      discountSave: null,
+      discountDelete: null,
+      takeDefaultAddress: true,
+    });
+  });
+
+  it('rejects ambiguous position aliases before any request', async () => {
+    const fetch = createMockFetch({});
+    await expect(
+      createResource(fetch).save({
+        invoice: { id: 9001 },
+        positions: [],
+        invoicePosSave: [],
+      }),
+    ).rejects.toThrow('not both');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('returns the unwrapped Email acknowledgement', async () => {
+    const email = {
+      id: '5001',
+      objectName: 'Email',
+      object: {
+        id: '9001',
+        objectName: 'Invoice',
+        invoiceNumber: 'RE-1',
+        status: '200',
+        sendType: 'VM',
+        sendDate: '2030-01-09T10:02:42+01:00',
+      },
+    };
+    const fetch = createMockFetch({ objects: email }, { status: 201 });
+    expect(
+      await createResource(fetch).sendViaEmail({
+        invoiceId: 9001,
+        toEmail: 'billing@acme.example',
+        subject: 'Rechnung Nr. RE-1',
+        text: 'Thank you',
+        copy: true,
+      }),
+    ).toEqual(email);
+    expect(lastRequest(fetch).url).toBe(
+      `${BASE_URL}/Invoice/9001/sendViaEmail`,
+    );
+    expect(lastRequest(fetch).init.method).toBe('POST');
+    expect(parsedBody(fetch)).toEqual({
+      toEmail: 'billing@acme.example',
+      subject: 'Rechnung Nr. RE-1',
+      text: 'Thank you',
+      copy: true,
+    });
+  });
+
+  it('deletes a draft without a body', async () => {
+    const fetch = createMockFetch({ objects: null });
+    await expect(
+      createResource(fetch).delete({ invoiceId: 9001 }),
+    ).resolves.toBeUndefined();
+    expect(lastRequest(fetch).url).toBe(`${BASE_URL}/Invoice/9001`);
+    expect(lastRequest(fetch).init.method).toBe('DELETE');
+    expect(lastRequest(fetch).init.body).toBeUndefined();
+  });
+
+  it.each(['save', 'send', 'delete'] as const)(
+    'surfaces 422 errors from %s',
+    async (operation) => {
+      const fetch = createMockFetch(
+        { error: { message: 'ACME validation failed' } },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+      const resource = createResource(fetch);
+      const pending =
+        operation === 'save'
+          ? resource.save({ invoice: { id: 9001, headText: 'ACME' } })
+          : operation === 'send'
+            ? resource.sendViaEmail({
+                invoiceId: 9001,
+                toEmail: 'billing@acme.example',
+                subject: 'RE-1',
+                text: 'ACME',
+              })
+            : resource.delete({ invoiceId: 9001 });
+      const error = await pending.catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(SevDeskError);
+      expect(error).toMatchObject({
+        status: 422,
+        message: expect.stringContaining('ACME validation failed'),
+      });
+    },
+  );
 });

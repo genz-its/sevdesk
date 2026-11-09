@@ -22,14 +22,18 @@ Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1
 Install the CLI globally:
 
 ```bash
-npm install -g @genz-its/sevdesk-cli
+npm install -g https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz
 ```
 
 Alternatively, run it without installation:
 
 ```bash
-npx @genz-its/sevdesk-cli <command>
+npx --package=https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz sevdesk <command>
 ```
+
+These GitHub release assets include this distribution's SDK. The unchanged
+`@genz-its` names preserve compatibility; registry installs by package name alone
+install upstream instead. See the [release notes](../../docs/releases/v0.2.0.md).
 
 ## Quickstart
 
@@ -124,6 +128,9 @@ sevdesk transactions:list --unbooked --json | jq -r '.[].id'
 - [`export:vouchers`](#exportvouchers)
 - [`guidance:accounts`](#guidanceaccounts)
 - [`invoices:create`](#invoicescreate)
+- [`invoices:delete`](#invoicesdelete)
+- [`invoices:send`](#invoicessend)
+- [`invoices:update`](#invoicesupdate)
 - [`invoices:get`](#invoicesget)
 - [`invoices:list`](#invoiceslist)
 - [`invoices:pdf`](#invoicespdf)
@@ -679,11 +686,120 @@ The invoice optionally accepts `header`, `headText`, `footText`,
 `customerInternalNote`, `smallSettlement`, and `paymentMethodId`. Positions optionally accept `text`
 and percentage `discount`. Unknown fields are rejected, including existing invoice IDs.
 Only status `100` and type `RE` are allowed (both defaulted); special invoice types
-and editing existing invoices are intentionally not supported.
+are not supported by creation. Use `invoices:update` to edit an existing regular draft.
 
 Local validation does not establish tax correctness or validate IDs against the
 account. After creating, inspect the returned ID with `invoices:get`. A timed-out
 creation may have succeeded: check for duplicates before retrying.
+
+### `invoices:delete`
+
+Permanently delete an **unsent draft**. Fetches the invoice first; refuses finalised,
+sent, or enshrined invoices. Use a credit note or cancellation for finalised invoices (GoBD).
+
+```bash
+sevdesk invoices:delete 9001 --yes --json
+```
+
+**Argument:** required invoice ID.
+
+**Options:**
+
+- `--yes`: Confirm deletion. Otherwise prompts with number, contact, and gross amount; non-interactive mode requires `--yes`.
+- `--json`: Return `{ deleted, invoiceId, invoiceNumber }` after successful deletion.
+
+### `invoices:send`
+
+Email and finalise an existing draft, without creating another invoice. Requires
+status `100`, an empty `sendDate`, and no enshrinement. Never automatically resends.
+
+```bash
+sevdesk invoices:send 9001 delivery.json --dry-run --json
+sevdesk invoices:send 9001 delivery.json --yes --json --receipt /new/path/send-receipt.json
+```
+
+**Arguments:** required invoice ID and delivery JSON path.
+
+Example `delivery.json` (invented recipient):
+
+```json
+{
+  "delivery": {
+    "to": "billing@acme.example",
+    "subject": "Rechnung Nr. {{number}}",
+    "message": "Thank you for your order.\nYour invoice {{number}} is attached.",
+    "copyToSelf": true
+  }
+}
+```
+
+The shared quote/invoice delivery model also accepts `cc` and `bcc` arrays of
+email addresses. `{{number}}` is replaced in subject and message with the stored
+invoice number. The message is plain text, escaped as HTML with preserved line breaks.
+
+**Options:**
+
+- `--dry-run`: Validate offline, without authentication, network calls, receipts, or finalisation. Number substitution and account/draft validation remain pending.
+- `--yes`: Confirm finalisation and recipient. Otherwise prompts with number, contact, gross amount, and all recipients; required non-interactively.
+- `--receipt`: New operation receipt path (Vorgangsprotokoll). Existing files are never overwritten. Defaults to `$XDG_STATE_HOME/sevdesk/invoices/<uuid>.json` (or `~/.local/state/sevdesk/invoices/`). Files are private (`0600`).
+- `--json`: Return the operation result including `state`, `invoiceId`, `invoiceNumber`, `status`, `sendType`, `sendDate`, and receipt path.
+
+A successful send means sevdesk accepted it, not that inbox delivery was verified.
+Sending is issued once. Errors or missing acknowledgements return `state: "send-unknown"`
+and exit 1, with a read-only state check saved in the receipt. Inspect sevdesk and
+the receipt before retrying; a timeout may have finalised and sent the invoice.
+Never use `invoices:create` to retry sending.
+
+### `invoices:update`
+
+Partially update a regular (`RE`), unsent draft. Finalised invoices are immutable
+(GoBD): use a credit note or cancellation instead. Never sends or finalises.
+
+```bash
+sevdesk invoices:update 9001 update.json --dry-run --json
+sevdesk invoices:update 9001 update.json --yes --json
+```
+
+**Arguments:** required invoice ID and update JSON path.
+
+```json
+{
+  "invoice": {
+    "contactId": 1001,
+    "takeDefaultAddress": true,
+    "headText": "<p>Dear ACME Testbau GmbH,</p>"
+  },
+  "positions": [
+    {
+      "name": "ACME test support",
+      "quantity": 1,
+      "price": 1000,
+      "taxRate": 19,
+      "unityId": 1
+    }
+  ]
+}
+```
+
+All `invoice` fields from `invoices:create` are optional and have no defaults on
+update. Omitted fields retain their stored values. `address` and `addressCountryId`
+are also accepted. `takeDefaultAddress` may be inside `invoice` or at the top level;
+conflicting values are rejected. It fills the address from the selected contact.
+Dates use the same `YYYY-MM-DD` validation as creation. Supplied dates are checked
+offline; omitted dates are merged with stored dates for validation before saving.
+
+**Warning:** supplying `positions` replaces **all** existing positions (paginated
+read of old IDs, then one save with new positions and deletion references). At least
+one position is required. Omit `positions` to leave them untouched. Changed explicit
+invoice numbers are checked for collisions; the check is not an atomic reservation.
+
+**Options:**
+
+- `--dry-run`: Validate and print a normalized preview offline. Stored fields, old position IDs, and draft status are not resolved.
+- `--yes`: Confirm editing (and replacement of all positions if supplied). Required non-interactively.
+- `--json`: Re-read after saving and print the stored invoice, not the request payload.
+
+A failed/timed-out save may have succeeded. Inspect the invoice before retrying.
 
 ### `invoices:get`
 
@@ -697,7 +813,7 @@ sevdesk invoices:get [id] [options]
 
 **Options:**
 
-- `--positions`: Include all line items. With `--json`, returns `{ invoice, positions }` instead of the invoice alone.
+- `--positions`: Include all line items, paginated through `/InvoicePos` (the invoice convenience endpoint can ignore offsets). With `--json`, returns `{ invoice, positions }` instead of the invoice alone.
 - `--json`: Output in JSON format.
 
 ### `invoices:list`
@@ -710,7 +826,8 @@ sevdesk invoices:list [options]
 
 **Options:**
 
-- `--status`: Filter by status: `50` deactivated recurring, `100` draft, `200` open, `750` partially paid, `1000` paid.
+- `--status`: Filter by status: `50` deactivated recurring, `100` draft, `200` open, `750` partially paid, `1000` paid. Also enforced client-side before applying `--limit`.
+- `--drafts`: Shortcut for `--status 100`; conflicts with any other status. With `--json`, always return `{ invoices, warnings }`.
 - `--invoice-number`: Filter by invoice number.
 - `--start-date`: Only invoices on or after this date as `dd.mm.yyyy` or Unix timestamp.
 - `--end-date`: Only invoices on or before this date as `dd.mm.yyyy` or Unix timestamp.
@@ -718,6 +835,12 @@ sevdesk invoices:list [options]
 - `--limit`: Maximum number of invoices to return. Defaults to all of them.
 - `--offset`: Number of invoices to skip.
 - `--json`: Output in JSON format.
+
+Duplicate draft numbers in the returned rows produce a warning on stderr naming
+the number and all matching draft IDs. With `--json`, duplicates return
+`{ invoices, warnings }`, even without `--drafts`. Otherwise the legacy JSON array
+is preserved; use `--drafts --json` for a stable warnings envelope. Limits, offsets,
+and other filters restrict duplicate detection; omit them for a complete check.
 
 ### `invoices:pdf`
 

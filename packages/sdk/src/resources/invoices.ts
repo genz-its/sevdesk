@@ -99,9 +99,19 @@ export interface InvoicePositionInput {
   discount?: number;
 }
 
+export interface InvoiceUpdateInput extends Partial<InvoiceInput> {
+  id: number;
+  objectName?: 'Invoice';
+  mapAll?: true;
+}
+
 export interface SaveInvoiceOptions {
-  invoice: InvoiceInput;
-  positions: InvoicePositionInput[];
+  invoice: InvoiceInput | InvoiceUpdateInput;
+  /** Backwards-compatible alias for invoicePosSave. Do not supply both. */
+  positions?: InvoicePositionInput[];
+  invoicePosSave?: InvoicePositionInput[];
+  /** Omit (or pass null) to leave existing positions untouched. */
+  invoicePosDelete?: ModelRef[] | null;
   /** Takes the first address of the contact as the invoice address. */
   takeDefaultAddress?: boolean;
 }
@@ -359,15 +369,12 @@ export class InvoicesResource extends BaseResource {
     return invoice;
   }
 
-  /**
-   * Creates or updates an invoice with its positions via
-   * `POST /Invoice/Factory/saveInvoice`.
-   *
-   * Invoices can only be created as drafts. Use `sendViaEmail`, `sendBy` and
-   * `book` to advance the status afterwards.
-   */
+  /** Creates or partially updates an invoice via `POST /Invoice/Factory/saveInvoice`. */
   public async save(options: SaveInvoiceOptions): Promise<SaveInvoiceResult> {
-    const { invoice, positions, takeDefaultAddress } = options;
+    const { invoice, takeDefaultAddress } = options;
+    if (options.positions !== undefined && options.invoicePosSave !== undefined)
+      throw new Error('Supply positions or invoicePosSave, not both.');
+    const positions = options.invoicePosSave ?? options.positions;
     const result = await this.http.request<{
       invoice: Invoice;
       invoicePos: InvoicePosition[];
@@ -376,14 +383,22 @@ export class InvoicesResource extends BaseResource {
       path: '/Invoice/Factory/saveInvoice',
       body: {
         invoice: toInvoiceBody(invoice),
-        invoicePosSave: positions.map(toInvoicePositionBody),
-        invoicePosDelete: null,
+        invoicePosSave: positions?.map(toInvoicePositionBody),
+        invoicePosDelete: options.invoicePosDelete ?? null,
         discountSave: null,
         discountDelete: null,
         ...(takeDefaultAddress === undefined ? {} : { takeDefaultAddress }),
       },
     });
     return { invoice: result.invoice, positions: result.invoicePos };
+  }
+
+  /** Deletes an invoice via `DELETE /Invoice/{invoiceId}`. */
+  public async delete(options: { invoiceId: number }): Promise<void> {
+    await this.http.request<void>({
+      method: 'DELETE',
+      path: `/Invoice/${options.invoiceId}`,
+    });
   }
 
   /** Creates an invoice from an order via `POST /Invoice/Factory/createInvoiceFromOrder`. */
@@ -414,7 +429,10 @@ export class InvoicesResource extends BaseResource {
     });
   }
 
-  /** Retrieves the positions of an invoice via `GET /Invoice/{invoiceId}/getPositions`. */
+  /**
+   * Retrieves positions via `GET /Invoice/{invoiceId}/getPositions`.
+   * This endpoint can ignore offset; use listPositions for complete paginated reads.
+   */
   public getPositions(
     options: { invoiceId: number; embed?: string[] } & ListOptions,
   ): Promise<InvoicePosition[]> {
@@ -423,6 +441,24 @@ export class InvoicesResource extends BaseResource {
       method: 'GET',
       path: `/Invoice/${invoiceId}/getPositions`,
       query: { limit, offset, embed },
+    });
+  }
+
+  /** Lists invoice positions with pagination via `GET /InvoicePos`. */
+  public listPositions(
+    options: { invoiceId: number; embed?: string[] } & ListOptions,
+  ): Promise<InvoicePosition[]> {
+    const { invoiceId, limit, offset, embed } = options;
+    return this.http.request<InvoicePosition[]>({
+      method: 'GET',
+      path: '/InvoicePos',
+      query: {
+        'invoice[id]': invoiceId,
+        'invoice[objectName]': 'Invoice',
+        limit,
+        offset,
+        embed,
+      },
     });
   }
 
@@ -462,10 +498,7 @@ export class InvoicesResource extends BaseResource {
     });
   }
 
-  /**
-   * Sends an invoice to the end-customer via
-   * `POST /Invoice/{invoiceId}/sendViaEmail`. This marks the invoice as sent.
-   */
+  /** Sends and finalises an invoice via `POST /Invoice/{invoiceId}/sendViaEmail`. */
   public sendViaEmail(
     options: SendInvoiceViaEmailOptions,
   ): Promise<InvoiceEmail> {
@@ -573,19 +606,23 @@ export class InvoicesResource extends BaseResource {
   }
 }
 
-function toInvoiceBody(invoice: InvoiceInput): Record<string, unknown> {
+function toInvoiceBody(
+  invoice: InvoiceInput | InvoiceUpdateInput,
+): Record<string, unknown> {
+  const updating = 'id' in invoice;
   return {
+    ...(updating ? { id: invoice.id } : {}),
     objectName: 'Invoice',
     mapAll: true,
     invoiceNumber: invoice.invoiceNumber,
-    contact: { id: invoice.contactId, objectName: 'Contact' },
-    contactPerson: { id: invoice.contactPersonId, objectName: 'SevUser' },
-    invoiceDate: toVoucherDate(invoice.invoiceDate),
+    contact: toRef(invoice.contactId, 'Contact'),
+    contactPerson: toRef(invoice.contactPersonId, 'SevUser'),
+    invoiceDate: toOptionalInvoiceDate(invoice.invoiceDate),
     header: invoice.header,
     headText: invoice.headText,
     footText: invoice.footText,
     timeToPay: invoice.timeToPay,
-    discount: invoice.discount ?? 0,
+    discount: updating ? invoice.discount : (invoice.discount ?? 0),
     address: invoice.address,
     addressCountry: toRef(invoice.addressCountryId, 'StaticCountry'),
     payDate: toOptionalInvoiceDate(invoice.payDate),
@@ -593,8 +630,8 @@ function toInvoiceBody(invoice: InvoiceInput): Record<string, unknown> {
     deliveryDateUntil: toOptionalInvoiceDate(invoice.deliveryDateUntil),
     status: invoice.status,
     smallSettlement: invoice.smallSettlement,
-    taxRate: 0,
-    taxRule: { id: invoice.taxRuleId, objectName: 'TaxRule' },
+    taxRate: updating ? undefined : 0,
+    taxRule: toRef(invoice.taxRuleId, 'TaxRule'),
     taxText: invoice.taxText,
     paymentMethod: toRef(invoice.paymentMethodId, 'PaymentMethod'),
     invoiceType: invoice.invoiceType,

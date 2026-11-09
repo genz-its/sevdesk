@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { defineCommand, defineOptions } from 'zodline';
 import { idArgument, requireIdArgument } from '../../arguments';
 import { requireClient } from '../../client';
+import { fetchInvoicePositions } from '../../invoices/positions';
 import { contactLabel, printJson } from '../../output';
 
 export default defineCommand({
@@ -33,7 +34,7 @@ export default defineCommand({
       embed: ['contact'],
     });
     const positions = options.positions
-      ? await client.invoices.getPositions({ invoiceId })
+      ? await fetchInvoicePositions(client, invoiceId)
       : undefined;
     if (options.json) {
       printJson(positions ? { invoice, positions } : invoice);

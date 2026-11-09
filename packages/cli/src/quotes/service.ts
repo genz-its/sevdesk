@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, open, rename, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { emailBody } from '../delivery';
 import { assertNumberAvailable, nextNumber } from '../numbering';
 import { fetchAll } from '../pagination';
 import {
@@ -349,16 +350,10 @@ async function deliver(
   const result = { ...current, state: 'sending' as State };
   await receipt.update(result);
   const number = current.orderNumber || current.orderId!;
-  const substitute = (v: string) => v.replaceAll('{{number}}', number);
   try {
     const mails = await client.orders.sendViaEmail({
       orderId: Number(current.orderId),
-      toEmail: delivery.to,
-      ccEmail: delivery.cc?.join(','),
-      bccEmail: delivery.bcc?.join(','),
-      subject: substitute(delivery.subject),
-      text: html(substitute(delivery.message)),
-      copy: delivery.copyToSelf,
+      ...emailBody(delivery, number),
     });
     if (!Array.isArray(mails) || mails.length === 0)
       throw new Error('Missing send acknowledgement');
