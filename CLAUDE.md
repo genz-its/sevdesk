@@ -20,19 +20,19 @@ npm run typecheck             # tsc --noEmit in every workspace
 npm run lint                  # eslint . && prettier --check .
 npm run fmt                   # eslint --fix . && prettier --write .
 
-npm test -w @genz-its/sevdesk-sdk -- vouchers      # single test file (vitest name filter)
-npm test -w @genz-its/sevdesk-cli -- --watch
+npm test -w @mi-skam/sevdesk-sdk -- vouchers      # single test file (vitest name filter)
+npm test -w @mi-skam/sevdesk -- --watch
 
 node packages/cli/dist/index.js <command>          # run the built CLI locally
 ```
 
-CI runs `build`, `lint`, `typecheck` and `test` on Node 22 and 24. Node >= 22 is required.
+CI runs `build`, `lint`, `typecheck`, `test`, `test:terminal`, `release:pack` and `release:verify` on Node 22 and 24. Node >= 22.13 is required for the CLI, >= 22 for the SDK.
 
 ## Architecture
 
 npm workspaces monorepo with two published packages. **The CLI is a thin layer over the SDK — never call the sevdesk API directly from CLI code.**
 
-### `packages/sdk` — `@genz-its/sevdesk-sdk`
+### `packages/sdk` — `@mi-skam/sevdesk-sdk`
 
 Zero runtime dependencies, native `fetch`, ESM only.
 
@@ -42,7 +42,7 @@ Zero runtime dependencies, native `fetch`, ESM only.
 - `src/dates.ts` — three serializers because endpoints disagree: `toVoucherDate` (`dd.mm.yyyy` or Unix seconds), `toIsoDateTime`, `toPlainDate`.
 - `src/index.ts` re-exports everything; new resources must be added there.
 
-### `packages/cli` — `@genz-its/sevdesk-cli` (bin `sevdesk`)
+### `packages/cli` — `@mi-skam/sevdesk` (bin `sevdesk`)
 
 Built on `zodline` + `zod` + `consola`.
 
@@ -84,4 +84,4 @@ Vitest, no network. SDK tests build a resource on an `HttpClient` with a mocked 
 
 ## Releases
 
-release-please with the `node-workspace` plugin; conventional commits drive versioning, and merging the release PR publishes to npm via OIDC trusted publishing. `save-exact=true` — all dependency versions are pinned, including the CLI's dependency on the SDK version (release-please bumps it). Changelogs are generated and excluded from prettier.
+release-please manages a single root component (`.`) with `include-component-in-tag: false`; `extra-files` bump both package versions, the CLI's pinned SDK dependency and the workspace entries in `package-lock.json`. Conventional commits drive versioning and the root `CHANGELOG.md` (the per-package changelogs are frozen history from before 0.3.0). **Nothing is published to npm** — releases are GitHub releases only. Merging the release PR makes `.github/workflows/release.yml` tag `vX.Y.Z`, create the GitHub release and call `.github/workflows/github-release.yml`, which checks out the tag, builds, tests, runs `scripts/package-release.mjs` (SDK tarball + CLI tarball with the exact SDK bundled, plus `SHA256SUMS`; checks `RELEASE_TAG` against the versions) and `scripts/verify-release.mjs` (isolated install and offline smoke tests), and attaches the files. Run it by hand with `gh workflow run github-release.yml -f tag=vX.Y.Z` to (re)attach the assets of an existing tag. Both packages share a version. `save-exact=true` — all dependency versions are pinned. Changelogs are generated and excluded from prettier.

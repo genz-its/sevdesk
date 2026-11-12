@@ -1,4 +1,4 @@
-import { SevDeskError } from '@genz-its/sevdesk-sdk';
+import { SevDeskError } from '@mi-skam/sevdesk-sdk';
 import { z } from 'zod';
 import { ZodlineError } from 'zodline';
 

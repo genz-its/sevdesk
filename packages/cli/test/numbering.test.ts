@@ -1,4 +1,4 @@
-import type { NumberSequence, SevDesk } from '@genz-its/sevdesk-sdk';
+import type { NumberSequence, SevDesk } from '@mi-skam/sevdesk-sdk';
 import { describe, expect, it, vi } from 'vitest';
 import {
   assertNumberAvailable,

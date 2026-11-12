@@ -1,4 +1,4 @@
-import type { AllowedTaxRule, ReceiptGuide } from '@genz-its/sevdesk-sdk';
+import type { AllowedTaxRule, ReceiptGuide } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { defineCommand, defineOptions } from 'zodline';

@@ -8,26 +8,30 @@ Unofficial Node.js SDK and CLI for the [sevdesk](https://sevdesk.de/) API.[^1]
 
 ## Packages
 
-| Package                                    | Description                                    |
-| ------------------------------------------ | ---------------------------------------------- |
-| [`@genz-its/sevdesk-sdk`](./packages/sdk/) | Unofficial Node.js SDK for the sevdesk API.    |
-| [`@genz-its/sevdesk-cli`](./packages/cli/) | Unofficial command-line interface for sevdesk. |
+| Package                                   | Description                                    |
+| ----------------------------------------- | ---------------------------------------------- |
+| [`@mi-skam/sevdesk-sdk`](./packages/sdk/) | Unofficial Node.js SDK for the sevdesk API.    |
+| [`@mi-skam/sevdesk`](./packages/cli/)     | Unofficial command-line interface for sevdesk. |
 
 ## Distribution and upstream
 
-This repository maintains an independent distribution based on
-[genz-its/sevdesk](https://github.com/genz-its/sevdesk), retaining the original MIT
-license and author attribution. Releases are published on
-[GitHub](https://github.com/mi-skam/sevdesk/releases), not npm. The original
-`@genz-its` package names are retained for import compatibility; installing those
-names from the npm registry installs the **upstream** distribution, not this one.
+This repository is an independent distribution based on
+[genz-its/sevdesk](https://github.com/genz-its/sevdesk); the original MIT license and
+copyright notice are retained in [LICENSE](./LICENSE). Releases are published on
+[GitHub](https://github.com/mi-skam/sevdesk/releases), not npm.
 
-### Install v0.2.0
+Since 0.3.0 the packages are named `@mi-skam/sevdesk-sdk` and `@mi-skam/sevdesk`
+(previously `@genz-its/sevdesk-sdk` and `@genz-its/sevdesk-cli`). Update imports
+from `@genz-its/sevdesk-sdk` to `@mi-skam/sevdesk-sdk`; the `sevdesk` command name
+is unchanged. The `@genz-its` names on npm belong to the upstream distribution.
 
-Requires Node.js 22 or later:
+### Install a release
+
+Requires Node.js 22.13 or later (the SDK alone: 22). Download `sevdesk-cli-X.Y.Z.tgz`
+from the [latest release](https://github.com/mi-skam/sevdesk/releases/latest), then:
 
 ```bash
-npm install -g https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz
+npm install -g ./sevdesk-cli-X.Y.Z.tgz
 sevdesk --version
 ```
 
@@ -36,7 +40,7 @@ SDK from upstream npm. Other CLI dependencies are installed from npm. The SDK is
 also available independently:
 
 ```bash
-npm install https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-sdk-0.2.0.tgz
+npm install ./sevdesk-sdk-X.Y.Z.tgz
 ```
 
 Release assets include `SHA256SUMS` for checksum verification.
@@ -54,7 +58,7 @@ Account-specific defaults are not inferred from historical documents. Quote tota
 
 ## Getting started
 
-Node.js 22 or later and a sevdesk account on bookkeeping system version 2.0 are required for account operations. Offline previews do not require authentication.
+Node.js 22.13 or later and a sevdesk account on bookkeeping system version 2.0 are required for account operations. Offline previews do not require authentication.
 
 ### Run from source
 
@@ -112,7 +116,7 @@ Filters such as `invoices:list --contact 7`, relationship settings such as `--ch
 
 ### Upstream npm packages
 
-For the published upstream versions, rather than this distribution:
+The upstream distribution is published to npm under different names and does not include the changes in this repository:
 
 ```bash
 npm install @genz-its/sevdesk-sdk
@@ -138,15 +142,43 @@ npm test
 npm run test:terminal
 ```
 
-### GitHub releases
+### Releases
 
-Both packages share a release version. Update both manifests and the CLI's pinned
-SDK dependency, refresh `package-lock.json`, and add `docs/releases/vX.Y.Z.md`.
-After checks pass and the changes are merged to `main`, push tag `vX.Y.Z`.
-The `GitHub release` workflow validates the tag/version match, builds and tests,
-creates tarballs, verifies isolated installation, and publishes assets and checksums.
-It never runs `npm publish`. The separate upstream release-please workflow remains
-disabled in this repository.
+Releases are GitHub releases only; nothing is published to npm. Both packages always share one version, tagged `vX.Y.Z`. Shipping a release takes one manual step: merging the release PR.
+
+1. **Use conventional commit prefixes.** When squash-merging, the PR title becomes the commit message, so give the title the prefix. While the version is below 1.0:
+
+   | Prefix                                         | Example                          | Effect (from 0.1.0) |
+   | ---------------------------------------------- | -------------------------------- | ------------------- |
+   | `fix:`                                         | `fix: handle empty voucher list` | 0.1.1               |
+   | `feat:`                                        | `feat: add tags:update command`  | 0.1.1               |
+   | `feat!:` or `BREAKING CHANGE:` in the body     | `feat!: rename --payee option`   | 0.2.0               |
+   | `chore:`, `ci:`, `docs:`, `test:`, `refactor:` | `docs: fix README typo`          | no release          |
+
+2. **release-please opens a release PR (automatic).** After each push to `main`, the Release workflow opens or updates a `chore: release X.Y.Z` PR if there are `fix:` or `feat:` commits since the last release. It bumps both package versions, the CLI's pinned SDK version and the lockfile, and updates `CHANGELOG.md`. Don't edit it; it keeps updating itself.
+
+3. **Merge the release PR when you want to ship.** Use merge or squash, never rebase:
+
+   ```bash
+   gh pr list
+   gh pr merge <number> --merge
+   ```
+
+4. **The release is created (automatic, about 2–3 minutes).** The Release workflow tags `vX.Y.Z` and creates the GitHub release with the changelog as notes. It then calls `.github/workflows/github-release.yml`, which builds, lints, typechecks and tests the tag, packs the tarballs, verifies that they install and run, and attaches `sevdesk-sdk-X.Y.Z.tgz`, `sevdesk-cli-X.Y.Z.tgz` and `SHA256SUMS`.
+
+5. **Check it worked.** The Release run should be green and the release should list three assets:
+
+   ```bash
+   gh run list --limit 3
+   gh release view vX.Y.Z
+   ```
+
+To install a release, see [Getting started](#getting-started).
+
+**If something goes wrong:**
+
+- **The release has no files:** look at the failed run with `gh run view --log-failed`. Fix the problem on `main`, then rebuild and attach the files to the existing release with `gh workflow run github-release.yml -f tag=vX.Y.Z`.
+- **No release PR appears:** there are no `fix:` or `feat:` commits since the last release. Check your commit prefixes.
 
 To build and verify assets locally after `npm run build`:
 

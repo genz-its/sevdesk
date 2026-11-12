@@ -1,4 +1,4 @@
-import { SevDesk } from '@genz-its/sevdesk-sdk';
+import { SevDesk } from '@mi-skam/sevdesk-sdk';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

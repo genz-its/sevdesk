@@ -1,4 +1,4 @@
-import type { ModelRefResponse } from '@genz-its/sevdesk-sdk';
+import type { ModelRefResponse } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { defineCommand, defineOptions } from 'zodline';

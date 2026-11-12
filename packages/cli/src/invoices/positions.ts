@@ -1,4 +1,4 @@
-import type { SevDesk } from '@genz-its/sevdesk-sdk';
+import type { SevDesk } from '@mi-skam/sevdesk-sdk';
 import { fetchAll } from '../pagination';
 
 /** getPositions ignores offset on live accounts; use the paginated InvoicePos resource. */

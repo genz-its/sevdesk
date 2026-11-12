@@ -1,4 +1,4 @@
-import type { Contact, SevDesk } from '@genz-its/sevdesk-sdk';
+import type { Contact, SevDesk } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';

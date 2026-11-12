@@ -1,6 +1,6 @@
 # Automation Guide
 
-How to set up an automated voucher workflow (upload receipts, match them to open bank transactions, book them) on top of `@genz-its/sevdesk-cli`.
+How to set up an automated voucher workflow (upload receipts, match them to open bank transactions, book them) on top of `@mi-skam/sevdesk`.
 
 Primary files and target IDs are positional and precede options. The old target `--id` and receipt `--file` flags have been removed without aliases; update existing scripts accordingly. Filters such as `vouchers:list --contact` and relationship options such as `--transaction` are unchanged.
 

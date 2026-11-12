@@ -1,4 +1,4 @@
-import type { NumberSequence, SevDesk } from '@genz-its/sevdesk-sdk';
+import type { NumberSequence, SevDesk } from '@mi-skam/sevdesk-sdk';
 import { fetchAll } from './pagination';
 
 export type NumberingKind = 'invoice' | 'quote';
