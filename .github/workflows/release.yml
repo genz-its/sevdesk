@@ -1,5 +1,10 @@
 name: Release
 
+# release-please maintains the release pull request, the changelog and the
+# version bumps. When that pull request is merged it tags `vX.Y.Z` and creates
+# the GitHub release; the assets job then builds, verifies and attaches the
+# tarballs. Nothing is published to npm.
+
 on:
   push:
     branches:
@@ -10,35 +15,26 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: write
-  id-token: write # Required for npm OIDC trusted publishing
   issues: write
   pull-requests: write
 
-env:
-  NODE_VERSION: 24
-
 jobs:
   release:
-    if: github.repository == 'genz-its/sevdesk'
+    if: github.repository == 'mi-skam/sevdesk'
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - name: Create release pull request or GitHub release
-        id: release-please
+      - name: Maintain release pull request and release
+        id: release
         uses: googleapis/release-please-action@v4
-      - uses: actions/checkout@v4
-        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-      - uses: actions/setup-node@v4
-        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Update npm for OIDC trusted publishing
-        if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm install -g npm@latest
-      - if: ${{ steps.release-please.outputs.releases_created == 'true' }}
-        run: npm ci
-      - name: Publish @genz-its/sevdesk-sdk to npm
-        if: ${{ steps.release-please.outputs['packages/sdk--release_created'] == 'true' }}
-        run: npm publish --workspace @genz-its/sevdesk-sdk
-      - name: Publish @genz-its/sevdesk-cli to npm
-        if: ${{ steps.release-please.outputs['packages/cli--release_created'] == 'true' }}
-        run: npm publish --workspace @genz-its/sevdesk-cli
+
+  assets:
+    needs: release
+    if: needs.release.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/github-release.yml
+    with:
+      tag: ${{ needs.release.outputs.tag_name }}

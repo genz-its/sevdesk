@@ -1,4 +1,4 @@
-import type { Invoice } from '@genz-its/sevdesk-sdk';
+import type { Invoice } from '@mi-skam/sevdesk-sdk';
 import { contactLabel } from '../output';
 
 export function requireDraft(invoice: Invoice, sending = false) {

@@ -1,4 +1,4 @@
-# @genz-its/sevdesk-sdk
+# @mi-skam/sevdesk-sdk
 
 Unofficial Node.js SDK for the [sevdesk](https://sevdesk.de/) API.[^1]
 
@@ -17,18 +17,20 @@ Unofficial Node.js SDK for the [sevdesk](https://sevdesk.de/) API.[^1]
 
 ## Installation
 
+Download `sevdesk-sdk-X.Y.Z.tgz` from the [latest GitHub release](https://github.com/mi-skam/sevdesk/releases/latest), then:
+
 ```bash
-npm install https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-sdk-0.2.0.tgz
+npm install ./sevdesk-sdk-X.Y.Z.tgz
 ```
 
-The package name is retained for import compatibility. Install the GitHub asset
-for this distribution; registry installs by package name alone install upstream.
+The package is not published to npm; the `@genz-its/sevdesk-sdk` package on npm is
+the upstream distribution.
 
 ## Usage
 
 ```ts
 import { readFile } from 'node:fs/promises';
-import { SevDesk } from '@genz-its/sevdesk-sdk';
+import { SevDesk } from '@mi-skam/sevdesk-sdk';
 
 const sevdesk = new SevDesk({ token: process.env.SEVDESK_TOKEN! });
 
@@ -68,7 +70,7 @@ await sevdesk.vouchers.book({
 | `token`     | The sevdesk API token, sent as raw `Authorization` header value.      | –                              |
 | `baseUrl`   | The API base URL.                                                     | `https://my.sevdesk.de/api/v1` |
 | `timeout`   | Request timeout in milliseconds.                                      | `30000`                        |
-| `userAgent` | The `User-Agent` header value.                                        | `@genz-its/sevdesk-sdk`        |
+| `userAgent` | The `User-Agent` header value.                                        | `@mi-skam/sevdesk-sdk`         |
 | `fetch`     | A custom `fetch` implementation, for example for testing or proxying. | `globalThis.fetch`             |
 
 ### Resources
@@ -131,7 +133,7 @@ The CLI provides these guards. Never blindly retry a failed send or save.
 Any non-2xx response throws a `SevDeskError` with the HTTP `status`, `statusText`, the parsed response `body`, and a `message` extracted from the API error payload:
 
 ```ts
-import { SevDeskError } from '@genz-its/sevdesk-sdk';
+import { SevDeskError } from '@mi-skam/sevdesk-sdk';
 
 try {
   await sevdesk.vouchers.get({ voucherId: 123 });
@@ -150,6 +152,6 @@ try {
 
 ## License
 
-See [LICENSE](https://github.com/genz-its/sevdesk/blob/main/LICENSE).
+See [LICENSE](https://github.com/mi-skam/sevdesk/blob/main/LICENSE).
 
 [^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevDesk GmbH or any of their affiliates or subsidiaries.

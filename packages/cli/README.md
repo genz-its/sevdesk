@@ -1,4 +1,4 @@
-# @genz-its/sevdesk-cli
+# @mi-skam/sevdesk
 
 Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1]
 
@@ -14,26 +14,21 @@ Unofficial command-line interface for the [sevdesk](https://sevdesk.de/) API.[^1
 
 ## Requirements
 
-- Node.js 22 or later.
+- Node.js 22.13 or later.
 - A sevdesk account on bookkeeping system version 2.0 (sevdesk-Update 2.0).
 
 ## Installation
 
 Install the CLI globally:
 
-```bash
-npm install -g https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz
-```
-
-Alternatively, run it without installation:
+Download `sevdesk-cli-X.Y.Z.tgz` from the [latest GitHub release](https://github.com/mi-skam/sevdesk/releases/latest) and install it globally:
 
 ```bash
-npx --package=https://github.com/mi-skam/sevdesk/releases/download/v0.2.0/sevdesk-cli-0.2.0.tgz sevdesk <command>
+npm install -g ./sevdesk-cli-X.Y.Z.tgz
 ```
 
-These GitHub release assets include this distribution's SDK. The unchanged
-`@genz-its` names preserve compatibility; registry installs by package name alone
-install upstream instead. See the [release notes](../../docs/releases/v0.2.0.md).
+The tarball bundles the matching SDK. The package is not published to npm; the
+`@genz-its/sevdesk-cli` package on npm is the upstream distribution.
 
 ## Quickstart
 
@@ -1342,6 +1337,6 @@ sevdesk vouchers:update [id] [options]
 
 ## License
 
-See [LICENSE](https://github.com/genz-its/sevdesk/blob/main/LICENSE).
+See [LICENSE](https://github.com/mi-skam/sevdesk/blob/main/LICENSE).
 
 [^1]: This project is not affiliated with, endorsed by, sponsored by, or approved by sevDesk GmbH or any of their affiliates or subsidiaries.

@@ -3,7 +3,7 @@ import { SevDeskError } from './errors';
 export const DEFAULT_BASE_URL = 'https://my.sevdesk.de/api/v1';
 
 const DEFAULT_TIMEOUT = 30_000;
-const DEFAULT_USER_AGENT = '@genz-its/sevdesk-sdk';
+const DEFAULT_USER_AGENT = '@mi-skam/sevdesk-sdk';
 const RETRY_MAX_ATTEMPTS = 3;
 const RETRY_BASE_DELAY = 500;
 const RETRY_MAX_DELAY = 10_000;

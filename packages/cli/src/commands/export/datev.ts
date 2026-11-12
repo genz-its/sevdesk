@@ -1,5 +1,5 @@
-import type { ExportJobDownloadInfo, SevDesk } from '@genz-its/sevdesk-sdk';
-import { SevDeskError } from '@genz-its/sevdesk-sdk';
+import type { ExportJobDownloadInfo, SevDesk } from '@mi-skam/sevdesk-sdk';
+import { SevDeskError } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { writeFile } from 'node:fs/promises';
 import { z } from 'zod';

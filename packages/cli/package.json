@@ -1,5 +1,5 @@
 {
-  "name": "@genz-its/sevdesk-cli",
+  "name": "@mi-skam/sevdesk",
   "version": "0.2.0",
   "description": "Unofficial command-line interface for the sevdesk API.",
   "type": "module",
@@ -19,7 +19,7 @@
     "test:terminal": "python3 test/quotes-terminal.test.py"
   },
   "dependencies": {
-    "@genz-its/sevdesk-sdk": "0.2.0",
+    "@mi-skam/sevdesk-sdk": "0.2.0",
     "consola": "3.4.2",
     "decimal.js": "10.6.0",
     "zod": "4.6.7",
@@ -41,10 +41,10 @@
     "accounting",
     "bookkeeping"
   ],
-  "author": "Robin Genz <mail@genz-its.de>",
+  "author": "mxm",
   "license": "MIT",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "publishConfig": {
     "access": "public"

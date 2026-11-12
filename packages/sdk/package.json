@@ -1,5 +1,5 @@
 {
-  "name": "@genz-its/sevdesk-sdk",
+  "name": "@mi-skam/sevdesk-sdk",
   "version": "0.2.0",
   "description": "Unofficial Node.js SDK for the sevdesk API.",
   "type": "module",
@@ -37,7 +37,7 @@
     "accounting",
     "bookkeeping"
   ],
-  "author": "Robin Genz <mail@genz-its.de>",
+  "author": "mxm",
   "license": "MIT",
   "engines": {
     "node": ">=22"

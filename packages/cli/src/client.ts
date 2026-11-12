@@ -1,4 +1,4 @@
-import { SevDesk } from '@genz-its/sevdesk-sdk';
+import { SevDesk } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { resolveToken } from './config';
 import { pkg } from './package';

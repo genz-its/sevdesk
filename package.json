@@ -1,5 +1,6 @@
 {
   "name": "sevdesk",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -12,12 +13,12 @@
     "release:verify": "node scripts/verify-release.mjs",
     "typecheck": "npm run typecheck --workspaces",
     "test": "npm run test --workspaces",
-    "test:terminal": "npm run build && npm run test:terminal -w @genz-its/sevdesk-cli",
+    "test:terminal": "npm run build && npm run test:terminal -w @mi-skam/sevdesk",
     "lint": "eslint . && prettier --check .",
     "fmt": "eslint --fix . && prettier --write ."
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

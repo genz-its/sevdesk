@@ -3,13 +3,43 @@
   "release-type": "node",
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
-  "plugins": ["node-workspace"],
+  "include-component-in-tag": false,
   "packages": {
-    "packages/sdk": {
-      "initial-version": "0.1.0"
-    },
-    "packages/cli": {
-      "initial-version": "0.1.0"
+    ".": {
+      "package-name": "sevdesk",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "packages/sdk/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "packages/cli/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "packages/cli/package.json",
+          "jsonpath": "$.dependencies['@mi-skam/sevdesk-sdk']"
+        },
+        {
+          "type": "json",
+          "path": "package-lock.json",
+          "jsonpath": "$.packages['packages/sdk'].version"
+        },
+        {
+          "type": "json",
+          "path": "package-lock.json",
+          "jsonpath": "$.packages['packages/cli'].version"
+        },
+        {
+          "type": "json",
+          "path": "package-lock.json",
+          "jsonpath": "$.packages['packages/cli'].dependencies['@mi-skam/sevdesk-sdk']"
+        }
+      ]
     }
   }
 }

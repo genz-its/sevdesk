@@ -32,7 +32,7 @@ describe('HttpClient', () => {
       const headers = headersOf(lastRequest(fetch).init);
       expect(headers.Authorization).toBe('tok-with-spaces');
       expect(headers.Accept).toBe('application/json');
-      expect(headers['User-Agent']).toBe('@genz-its/sevdesk-sdk');
+      expect(headers['User-Agent']).toBe('@mi-skam/sevdesk-sdk');
     });
 
     it('sets a json content type for json bodies', async () => {

@@ -3,7 +3,7 @@ import type {
   ContactAddress,
   SaveOrderOptions,
   SevDesk,
-} from '@genz-its/sevdesk-sdk';
+} from '@mi-skam/sevdesk-sdk';
 import { randomUUID } from 'node:crypto';
 import { mkdir, open, rename, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';

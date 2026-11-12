@@ -26,11 +26,13 @@ if (sdk.version !== cli.version || cli.dependencies[sdk.name] !== sdk.version)
   throw new Error(
     'SDK, CLI and the pinned SDK dependency must share the release version.',
   );
-if (
-  process.env['GITHUB_REF_TYPE'] === 'tag' &&
-  process.env['GITHUB_REF_NAME'] !== `v${cli.version}`
-)
-  throw new Error('Tag must match the package versions.');
+const tag =
+  process.env['RELEASE_TAG'] ??
+  (process.env['GITHUB_REF_TYPE'] === 'tag'
+    ? process.env['GITHUB_REF_NAME']
+    : undefined);
+if (tag !== undefined && tag !== `v${cli.version}`)
+  throw new Error(`Tag ${tag} must match the package versions.`);
 
 await mkdir(output, { recursive: true });
 const staging = await mkdtemp(join(tmpdir(), 'sevdesk-release-'));

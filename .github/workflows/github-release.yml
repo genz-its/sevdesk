@@ -1,24 +1,40 @@
-name: GitHub release
+name: GitHub release assets
+
+# Builds, verifies and attaches the SDK and CLI tarballs plus SHA256SUMS to the
+# GitHub release of a tag. Called by release.yml after release-please creates
+# a release; run it by hand to (re)attach the assets of an existing tag.
 
 on:
-  push:
-    tags: ['v[0-9]*']
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. v0.1.0
+        required: true
+        type: string
 
 permissions:
   contents: read
 
-concurrency:
-  group: github-release-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  release:
+  assets:
     if: github.repository == 'mi-skam/sevdesk'
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: release-assets-${{ inputs.tag }}
+      cancel-in-progress: false
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ inputs.tag }}
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -31,13 +47,13 @@ jobs:
       - run: npm run test:terminal
       - run: npm run release:pack
       - run: npm run release:verify
-      - name: Publish GitHub release and assets
+      - name: Attach assets to the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --repo "$GITHUB_REPOSITORY" \
-            --verify-tag \
-            --title "sevdesk $GITHUB_REF_NAME" \
-            --notes-file "docs/releases/$GITHUB_REF_NAME.md" \
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag --title "$RELEASE_TAG" --generate-notes
+          fi
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
             release-artifacts/*.tgz release-artifacts/SHA256SUMS

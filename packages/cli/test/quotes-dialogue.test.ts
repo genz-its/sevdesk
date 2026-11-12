@@ -1,4 +1,4 @@
-import type { SevDesk } from '@genz-its/sevdesk-sdk';
+import type { SevDesk } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { assertNumberAvailable, nextNumber } from '../src/numbering';

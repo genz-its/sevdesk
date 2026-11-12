@@ -1,4 +1,4 @@
-import type { VoucherStatus } from '@genz-its/sevdesk-sdk';
+import type { VoucherStatus } from '@mi-skam/sevdesk-sdk';
 import { consola } from 'consola';
 import { z } from 'zod';
 import { defineCommand, defineOptions } from 'zodline';
