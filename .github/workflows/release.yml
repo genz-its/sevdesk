@@ -1,8 +1,10 @@
 name: Release
 
 # release-please maintains the release pull request, the changelog and the
-# version bumps. When that pull request is merged it tags `vX.Y.Z` and creates
-# the GitHub release; the assets job then builds, verifies and attaches the
+# version bumps on every push to main. Merging that pull request does not
+# release on its own: the `release` job runs in the `release` environment,
+# which requires a maintainer's approval before it tags `vX.Y.Z` and creates
+# the GitHub release. The assets job then builds, verifies and attaches the
 # tarballs. Nothing is published to npm.
 
 on:
@@ -14,21 +16,50 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  release:
+  release-pr:
     if: github.repository == 'mi-skam/sevdesk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      pending: ${{ steps.pending.outputs.pending }}
+    steps:
+      - name: Maintain release pull request
+        uses: googleapis/release-please-action@v5
+        with:
+          skip-github-release: true
+      - name: Check whether this commit merged a release pull request
+        id: pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pending=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq 'any(.[]; .merged_at != null and any(.labels[]; .name == "autorelease: pending"))')
+          echo "pending=$pending" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: release-pr
+    if: needs.release-pr.outputs.pending == 'true'
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - name: Maintain release pull request and release
+      - name: Tag and create the GitHub release
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
+        with:
+          skip-github-pull-request: true
 
   assets:
     needs: release
